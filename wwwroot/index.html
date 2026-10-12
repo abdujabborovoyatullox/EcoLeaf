@@ -1505,6 +1505,38 @@
                     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
                 }
 
+        /* Parol maydoni: ko'z belgisi */
+        .pass-wrap {
+            position: relative;
+        }
+
+            .pass-wrap input {
+                padding-right: 46px !important;
+            }
+
+        .pass-eye {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+            .pass-eye:hover {
+                color: var(--primary);
+                transform: translateY(-50%);
+            }
+
         /* --- 3. USER CABINET VIEW --- */
         .cabinet-layout {
             display: flex;
@@ -2434,12 +2466,15 @@
                     <!-- Login Form -->
                     <div id="loginFormContainer">
                         <div class="input-group">
-                            <label>Telefon raqam yoki login</label>
-                            <input type="text" id="loginPhone" placeholder="+998 90 123 45 67" autocomplete="username" autocapitalize="none" spellcheck="false">
+                            <label>Login</label>
+                            <input type="text" id="loginPhone" placeholder="Loginingizni kiriting" autocomplete="username" autocapitalize="none" spellcheck="false">
                         </div>
                         <div class="input-group">
                             <label>Parol</label>
-                            <input type="password" id="loginPass" placeholder="Parol kiriting" autocomplete="current-password">
+                            <div class="pass-wrap">
+                                <input type="password" id="loginPass" placeholder="Parol kiriting" autocomplete="current-password">
+                                <button type="button" class="pass-eye" id="loginPassEye" aria-label="Parolni ko'rsatish" onclick="togglePass('loginPass', this)"><i class="fa-solid fa-eye"></i></button>
+                            </div>
                         </div>
                         <button class="btn-primary" style="width: 100%; padding: 12px; margin-top: 6px;" onclick="handleLogin()">Kirish</button>
                         <div style="text-align: center; margin-top: 16px;">
@@ -2452,6 +2487,10 @@
                         <div class="input-group">
                             <label>Ism</label>
                             <input type="text" id="regName" placeholder="Ismingizni kiriting">
+                        </div>
+                        <div class="input-group">
+                            <label>Login</label>
+                            <input type="text" id="regLogin" placeholder="Login o'ylab toping (kamida 3 belgi)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30">
                         </div>
                         <div class="input-group">
                             <label>Telefon raqam</label>
@@ -2722,13 +2761,13 @@
                         : '';
                 const body = p.body ? `<p class="post-body">${esc(p.body)}</p>` : '';
                 return `<div class="media-card">
-                            ${frame}
-                            <div class="media-body ${hasMedia ? '' : 'post-text-only'}">
-                                ${hasMedia ? '' : badgeHtml('static')}
-                                <h4>${esc(p.title)}</h4>${body}
-                                <span class="post-date">${esc(dateOf(p.createdAt))}</span>
-                            </div>
-                        </div>`;
+                                ${frame}
+                                <div class="media-body ${hasMedia ? '' : 'post-text-only'}">
+                                    ${hasMedia ? '' : badgeHtml('static')}
+                                    <h4>${esc(p.title)}</h4>${body}
+                                    <span class="post-date">${esc(dateOf(p.createdAt))}</span>
+                                </div>
+                            </div>`;
             }).join('');
         }
 
@@ -2777,9 +2816,9 @@
                     media = `<img src="${esc(m.src)}" alt="${esc(m.title)}" loading="lazy">`;
                 }
                 return `<div class="media-card">
-                            <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
-                            <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
-                        </div>`;
+                                <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
+                                <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
+                            </div>`;
             }).join('');
         }
 
@@ -2829,31 +2868,31 @@
             if (!st || !dt) return;
             const i = currentProcessStep, d = PROCESS_STEPS[i];
             st.innerHTML = PROCESS_STEPS.map((x, n) => `
-                        <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
-                            <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
-                        </button>`).join('');
+                            <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
+                                <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
+                            </button>`).join('');
             dt.innerHTML = `
-                        <div class="pd-head">
-                            <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
-                            <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
-                        </div>
-                        <p class="pd-lead">${esc(d.lead)}</p>
-                        <div class="pd-cols">
-                            <div class="pd-box">
-                                <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
-                                <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                            <div class="pd-head">
+                                <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
+                                <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
                             </div>
-                            <div>
-                                <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
-                                <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                            <p class="pd-lead">${esc(d.lead)}</p>
+                            <div class="pd-cols">
+                                <div class="pd-box">
+                                    <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
+                                    <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                                </div>
+                                <div>
+                                    <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
+                                    <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="pd-nav">
-                            <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
-                            ${i < PROCESS_STEPS.length - 1
+                            <div class="pd-nav">
+                                <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
+                                ${i < PROCESS_STEPS.length - 1
                     ? `<button type="button" class="btn-primary" onclick="selectProcessStep(${i + 1})">Keyingisi <i class="fa-solid fa-arrow-right"></i></button>`
                     : `<button type="button" class="btn-primary" onclick="openWebPage('products')">Mahsulotlarni ko'rish <i class="fa-solid fa-arrow-right"></i></button>`}
-                        </div>`;
+                            </div>`;
         }
 
         function selectProcessStep(n) {
@@ -2915,10 +2954,22 @@
             return guard(async () => {
                 const phone = document.getElementById('loginPhone').value.trim();
                 const password = document.getElementById('loginPass').value;
-                if (!phone || !password) { showToast("Telefon (yoki login) va parolni kiriting!", "error"); return; }
+                if (!phone || !password) { showToast("Login va parolni kiriting!", "error"); return; }
 
-                // Telefon raqamga o'xshamasa (harf bor), bu admin logini: admin sifatida kiramiz
+                // Telefon raqamga o'xshamasa (harf bor): avval oddiy foydalanuvchi logini sifatida tekshiramiz,
+                // topilmasa admin logini sifatida kirishga urinamiz
                 if (!/^[+\d\s()\-]+$/.test(phone)) {
+                    try {
+                        const u = await api('/auth/login', { method: 'POST', body: { login: phone, phone, password } });
+                        currentUser = { name: u.name, phone: u.phone };
+                        document.getElementById('loginPass').value = '';
+                        showToast("Muvaffaqiyatli kirdingiz!");
+                        await switchView('userCabinetView');
+                        return;
+                    } catch (e) {
+                        if (e.message && e.message.indexOf('Server bilan aloqa') === 0) throw e;
+                        /* foydalanuvchi emas - admin sifatida tekshiramiz */
+                    }
                     const res = await fetch('/api/admin/login', {
                         method: 'POST', credentials: 'same-origin',
                         headers: { 'Content-Type': 'application/json' },
@@ -2942,16 +2993,27 @@
             });
         }
 
+        function togglePass(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            btn.innerHTML = `<i class="fa-solid ${show ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+            btn.setAttribute('aria-label', show ? "Parolni yashirish" : "Parolni ko'rsatish");
+            inp.focus();
+        }
+
         function handleRegister() {
             return guard(async () => {
                 const name = document.getElementById('regName').value.trim();
+                const login = document.getElementById('regLogin').value.trim();
                 const phone = document.getElementById('regPhone').value.trim();
                 const password = document.getElementById('regPass').value;
 
-                if (!name || !phone || !password) { showToast("Barcha maydonlarni to'ldiring!", "error"); return; }
+                if (!name || !login || !phone || !password) { showToast("Barcha maydonlarni to'ldiring!", "error"); return; }
+                if (!/^[A-Za-z0-9_.\-]{3,30}$/.test(login)) { showToast("Login kamida 3 ta belgi: lotin harflari, raqam, _ . - bo'lsin!", "error"); return; }
                 if (password.length < 6) { showToast("Parol kamida 6 belgidan iborat bo'lsin!", "error"); return; }
 
-                const user = await api('/auth/register', { method: 'POST', body: { name, phone, password } });
+                const user = await api('/auth/register', { method: 'POST', body: { name, login, phone, password } });
                 currentUser = { name: user.name, phone: user.phone };
                 document.getElementById('regPass').value = '';
                 showToast("Ro'yxatdan o'tish muvaffaqiyatli yakunlandi!");
@@ -2975,26 +3037,26 @@
                 ? `<img src="${esc(activeAd.imageUrl)}" alt="" style="max-width:100%; max-height:220px; border-radius:12px; margin-top:12px; object-fit:cover;" referrerpolicy="no-referrer">`
                 : '';
             bannerArea.innerHTML = `
-                        <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
-                            <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
-                            <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
-                            ${img}
-                        </div>`;
+                            <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
+                                <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
+                                <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
+                                ${img}
+                            </div>`;
         }
 
         function productCardHtml(p) {
             return `
-                        <div class="card">
-                            <div>
-                                <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
-                                <p>${esc(p.description)}</p>
-                                ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
-                                <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
-                            </div>
-                        </div>`;
+                            <div class="card">
+                                <div>
+                                    <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
+                                    <p>${esc(p.description)}</p>
+                                    ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
+                                    <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
+                                </div>
+                            </div>`;
         }
 
         function renderWebProducts(list = products) {
@@ -3031,10 +3093,10 @@
                 return;
             }
             container.innerHTML = comments.map(c => `
-                        <div class="comment-box">
-                            <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
-                            <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
-                        </div>`).join('');
+                            <div class="comment-box">
+                                <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
+                                <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
+                            </div>`).join('');
         }
 
         // ---------- Foydalanuvchi kabineti ----------
@@ -3078,16 +3140,16 @@
                 return;
             }
             tbody.innerHTML = myOrders.map((o, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${esc(o.productName)}</td>
-                            <td>${Number(o.quantity)} ta</td>
-                            <td>${esc(o.address)}</td>
-                            <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
-                            <td>${o.status === 'Kutilmoqda'
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${esc(o.productName)}</td>
+                                <td>${Number(o.quantity)} ta</td>
+                                <td>${esc(o.address)}</td>
+                                <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
+                                <td>${o.status === 'Kutilmoqda'
                     ? `<button onclick="cancelUserOrder(${Number(o.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight: 500;"><i class="fa-solid fa-trash"></i> Bekor qilish</button>`
                     : '—'}</td>
-                        </tr>`).join('');
+                            </tr>`).join('');
         }
 
         function submitOrder() {
@@ -3158,7 +3220,7 @@
             if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('a[role=button]')) { e.preventDefault(); e.target.click(); return; }
             if (e.key !== 'Enter') return;
             if (e.target.id === 'loginPhone' || e.target.id === 'loginPass') handleLogin();
-            else if (['regName', 'regPhone', 'regPass'].includes(e.target.id)) handleRegister();
+            else if (['regName', 'regLogin', 'regPhone', 'regPass'].includes(e.target.id)) handleRegister();
         });
     </script>
 </body>
