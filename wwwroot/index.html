@@ -480,45 +480,6 @@
                 line-height: 1.6;
             }
 
-        /* Calculator Section */
-        .calculator-section {
-            background: var(--card-solid);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 50px;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calc-slider-group {
-            max-width: 520px;
-            margin: 24px auto;
-        }
-
-            .calc-slider-group input[type="range"] {
-                width: 100%;
-                accent-color: var(--primary);
-                cursor: pointer;
-                height: 8px;
-                border-radius: 4px;
-                background: var(--border-color);
-            }
-
-        .calc-result-box {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 22px;
-            border-radius: 12px;
-            max-width: 520px;
-            margin: 0 auto;
-            font-size: 14.5px;
-            line-height: 1.7;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-
         /* Process Steps */
         .process-grid {
             display: grid;
@@ -1357,7 +1318,6 @@
                 <li><a role="button" tabindex="0" data-nav="home" onclick="openWebPage('home')">Bosh sahifa</a></li>
                 <li><a role="button" tabindex="0" data-nav="products" onclick="openWebPage('products')">Mahsulotlar</a></li>
                 <li><a role="button" tabindex="0" data-nav="info" onclick="openWebPage('info')">Ma'lumotlar</a></li>
-                <li><a role="button" tabindex="0" onclick="scrollToSection('calculatorSection')">Kalkulyator</a></li>
                 <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
                 <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
             </ul>
@@ -1375,19 +1335,6 @@
                 </section>
 
                 <div class="container">
-                    <div class="calculator-section" id="calculatorSection">
-                        <h3 class="section-title" style="margin-bottom: 8px;">Tejamkorlik <span>Kalkulyatori</span></h3>
-                        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Xazon miqdorini belgilang va taxminiy foydani hisoblang</p>
-                        <div class="calc-slider-group">
-                            <label style="font-size: 13.5px; font-weight: 600; display: block; margin-bottom: 10px;">Xazon miqdori (kg): <span id="calcWeightVal" style="color: var(--primary);">50</span> kg</label>
-                            <input type="range" id="calcRange" min="10" max="500" value="50" oninput="updateCalculator()">
-                        </div>
-                        <div class="calc-result-box" id="calcResultText">
-                            Tabiat uchun foyda: ~ 1 ta katta daraxt<br>
-                            <b>Taxminiy tejamkorlik: 35,000 so'm</b>
-                        </div>
-                    </div>
-
                     <h3 class="section-title" id="processSection">Qayta Ishlash <span>Jarayoni</span></h3>
                     <div class="process-grid">
                         <div class="process-step">
@@ -1548,7 +1495,6 @@
                     <ul>
                         <li><a role="button" tabindex="0" onclick="openWebPage('products')">Mahsulotlar</a></li>
                         <li><a role="button" tabindex="0" onclick="openWebPage('info')">Ma'lumotlar</a></li>
-                        <li><a role="button" tabindex="0" onclick="scrollToSection('calculatorSection')">Kalkulyator</a></li>
                         <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
                         <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
                     </ul>
@@ -1990,16 +1936,6 @@
                 switchUserTab('orderTab', document.querySelectorAll('.cabinet-menu-item')[2]);
                 document.getElementById('orderProductSelect').value = prodId;
             });
-        }
-
-        function updateCalculator() {
-            const val = Number(document.getElementById('calcRange').value);
-            document.getElementById('calcWeightVal').innerText = val;
-            const trees = Math.max(1, Math.floor(val / 50));
-            const savings = val * 700;
-            document.getElementById('calcResultText').innerHTML = `
-                    Tabiat uchun foyda: ~ ${trees} ta katta daraxt<br>
-                    <b>Taxminiy tejamkorlik: ${fmt(savings)} so'm</b>`;
         }
 
         function toggleFaq(el) { el.classList.toggle('active'); }
