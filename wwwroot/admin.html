@@ -1436,8 +1436,8 @@
 
         async function adminLogout() {
             try { await api('/logout', { method: 'POST' }); } catch { /* baribir chiqamiz */ }
-            showLogin();
-            showToast('Tizimdan chiqildi.');
+            // Chiqqandan keyin to'g'ridan-to'g'ri bosh sahifaga o'tamiz
+            window.location.replace('/');
         }
 
         // ---------- Mahsulotlar ----------
