@@ -9,9 +9,8 @@ using Web_sayt.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Render PORT environment variable orqali portni beradi
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrEmpty(port))
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ---------- PostgreSQL ----------
 builder.Services.AddDbContext<AppDbContext>(o =>
