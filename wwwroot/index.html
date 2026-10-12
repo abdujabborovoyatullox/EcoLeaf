@@ -1004,6 +1004,129 @@
             }
         }
 
+
+        /* ===== Kirish / Ro'yxatdan o'tish: aylanuvchi rangli hoshiya ===== */
+        @property --auth-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes authSpin {
+            to {
+                --auth-angle: 360deg;
+            }
+        }
+
+        #authView {
+            background: radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.14), transparent 42%), radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.13), transparent 42%), radial-gradient(circle at 80% 15%, rgba(249, 115, 22, 0.08), transparent 38%);
+        }
+
+            #authView .auth-container {
+                position: relative;
+                isolation: isolate;
+                background: transparent;
+                border: none;
+                border-radius: 24px;
+                box-shadow: none;
+            }
+
+                #authView .auth-container::before {
+                    content: '';
+                    position: absolute;
+                    inset: -2px;
+                    border-radius: 26px;
+                    z-index: -2;
+                    background: conic-gradient(from var(--auth-angle), #10b981, #34d399, #22d3ee, #6366f1, #a855f7, #f43f5e, #f97316, #facc15, #10b981);
+                    animation: authSpin 5s linear infinite;
+                }
+
+                #authView .auth-container::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: 24px;
+                    z-index: -1;
+                    background: var(--card-solid);
+                }
+
+        .auth-glow {
+            position: absolute;
+            inset: -2px;
+            border-radius: 26px;
+            z-index: -3;
+            opacity: .55;
+            filter: blur(26px);
+            background: conic-gradient(from var(--auth-angle), #10b981, #34d399, #22d3ee, #6366f1, #a855f7, #f43f5e, #f97316, #facc15, #10b981);
+            animation: authSpin 5s linear infinite;
+        }
+
+        .auth-head {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .auth-logo {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 14px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            box-shadow: 0 10px 26px -8px rgba(16, 185, 129, 0.7);
+        }
+
+        .auth-head h3 {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+
+        .auth-head p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        #authView .auth-tabs {
+            gap: 6px;
+            padding: 5px;
+            border-bottom: none;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        #authView .auth-tab {
+            border-bottom: none;
+            border-radius: 10px;
+            padding: 11px 10px;
+        }
+
+            #authView .auth-tab.active {
+                color: #fff;
+                background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+                box-shadow: 0 6px 16px -6px rgba(16, 185, 129, 0.7);
+            }
+
+        #authView .auth-container .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #authView .auth-container::before, .auth-glow {
+                animation: none !important;
+            }
+        }
+
         /* Process page */
         .process-stepper {
             display: grid;
@@ -2241,6 +2364,12 @@
         <div id="authView" class="view-section" style="justify-content: center; align-items: center;">
             <div class="auth-wrapper">
                 <div class="auth-container">
+                    <span class="auth-glow" aria-hidden="true"></span>
+                    <div class="auth-head">
+                        <div class="auth-logo"><i class="fa-solid fa-leaf"></i></div>
+                        <h3>Eco Leaf'ga xush kelibsiz</h3>
+                        <p>Hisobingizga kiring yoki yangisini yarating</p>
+                    </div>
                     <div class="auth-tabs">
                         <div class="auth-tab active" id="loginTabBtn" onclick="switchAuthMode('login')">Kirish</div>
                         <div class="auth-tab" id="regTabBtn" onclick="switchAuthMode('register')">Ro'yxatdan o'tish</div>
