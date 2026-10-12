@@ -480,48 +480,229 @@
                 line-height: 1.6;
             }
 
-        /* Process Steps */
-        .process-grid {
+        /* Process page */
+        .process-stepper {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 18px;
-            margin-bottom: 50px;
+            gap: 14px;
+            margin-bottom: 28px;
+            position: relative;
         }
 
-        @media(max-width: 768px) {
-            .process-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-        }
-
-        .process-step {
+        .p-step {
+            position: relative;
             background: var(--card-solid);
             border: 1px solid var(--border-color);
-            padding: 24px 16px;
             border-radius: 16px;
+            padding: 20px 10px 16px;
             text-align: center;
-            font-size: 13.5px;
-            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            color: var(--text-color);
+            font-family: inherit;
+            transition: var(--transition);
         }
 
-            .process-step:hover {
+            .p-step:hover {
                 transform: translateY(-3px);
                 border-color: var(--primary);
             }
 
-            .process-step i {
-                font-size: 28px;
-                color: var(--primary);
-                margin-bottom: 14px;
+            .p-step .p-num {
                 display: block;
-                background: rgba(16, 185, 129, 0.1);
-                width: 55px;
-                height: 55px;
-                line-height: 55px;
-                border-radius: 14px;
-                margin-left: auto;
-                margin-right: auto;
+                font-size: 11.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                color: var(--text-muted);
+                margin-bottom: 10px;
             }
+
+            .p-step i {
+                display: block;
+                width: 52px;
+                height: 52px;
+                line-height: 52px;
+                border-radius: 15px;
+                margin: 0 auto 12px;
+                font-size: 22px;
+                color: var(--primary);
+                background: rgba(16, 185, 129, 0.1);
+                transition: var(--transition);
+            }
+
+            .p-step b {
+                font-size: 13.5px;
+                font-weight: 700;
+                display: block;
+            }
+
+            .p-step.done i {
+                background: rgba(16, 185, 129, 0.22);
+            }
+
+            .p-step.active {
+                border-color: var(--primary);
+                background: linear-gradient(180deg, rgba(16, 185, 129, 0.14), var(--card-solid));
+                box-shadow: 0 12px 28px -12px rgba(16, 185, 129, 0.55);
+            }
+
+                .p-step.active i {
+                    color: #fff;
+                    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+                    box-shadow: 0 8px 18px -6px rgba(16, 185, 129, 0.6);
+                }
+
+                .p-step.active .p-num {
+                    color: var(--primary);
+                }
+
+        .process-detail {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 36px;
+            box-shadow: var(--shadow-md);
+            animation: pageFade .4s ease;
+        }
+
+        .pd-head {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .pd-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            box-shadow: 0 10px 24px -8px rgba(16, 185, 129, 0.6);
+        }
+
+        .pd-head .pd-step {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+
+        .pd-head h3 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-color);
+            margin-top: 4px;
+        }
+
+        .pd-lead {
+            font-size: 15.5px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 26px;
+        }
+
+        .pd-cols {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 22px;
+            margin-bottom: 26px;
+        }
+
+        .pd-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+            .pd-box h4 {
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 14px;
+                color: var(--text-color);
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+                .pd-box h4 i {
+                    color: var(--primary);
+                }
+
+            .pd-box ul {
+                list-style: none;
+                display: grid;
+                gap: 12px;
+            }
+
+            .pd-box li {
+                display: flex;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.6;
+                color: var(--text-color);
+            }
+
+                .pd-box li i {
+                    color: var(--primary);
+                    margin-top: 4px;
+                    font-size: 13px;
+                }
+
+            .pd-box p {
+                font-size: 14px;
+                line-height: 1.7;
+                color: var(--text-muted);
+            }
+
+            .pd-box + .pd-box {
+                margin-top: 16px;
+            }
+
+        .pd-result {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .pd-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+            .pd-nav button {
+                min-width: 140px;
+            }
+
+                .pd-nav button[disabled] {
+                    opacity: 0.35;
+                    cursor: not-allowed;
+                }
+
+        @media(max-width: 768px) {
+            .process-stepper {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            }
+
+            .pd-cols {
+                grid-template-columns: 1fr;
+            }
+
+            .process-detail {
+                padding: 24px 18px;
+            }
+
+            .pd-head h3 {
+                font-size: 21px;
+            }
+        }
 
         /* FAQ Accordion */
         .faq-container {
@@ -1318,7 +1499,7 @@
                 <li><a role="button" tabindex="0" data-nav="home" onclick="openWebPage('home')">Bosh sahifa</a></li>
                 <li><a role="button" tabindex="0" data-nav="products" onclick="openWebPage('products')">Mahsulotlar</a></li>
                 <li><a role="button" tabindex="0" data-nav="info" onclick="openWebPage('info')">Ma'lumotlar</a></li>
-                <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
+                <li><a role="button" tabindex="0" data-nav="process" onclick="openWebPage('process')">Jarayon</a></li>
                 <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
             </ul>
             <div class="header-actions" id="headerActions"></div>
@@ -1335,30 +1516,6 @@
                 </section>
 
                 <div class="container">
-                    <h3 class="section-title" id="processSection">Qayta Ishlash <span>Jarayoni</span></h3>
-                    <div class="process-grid">
-                        <div class="process-step">
-                            <i class="fa-solid fa-truck-ramp-box"></i>
-                            <b>01. Yig'ish</b>
-                        </div>
-                        <div class="process-step">
-                            <i class="fa-solid fa-filter"></i>
-                            <b>02. Saralash</b>
-                        </div>
-                        <div class="process-step">
-                            <i class="fa-solid fa-gears"></i>
-                            <b>03. Qayta ishlab</b>
-                        </div>
-                        <div class="process-step">
-                            <i class="fa-solid fa-industry"></i>
-                            <b>04. Presslash</b>
-                        </div>
-                        <div class="process-step">
-                            <i class="fa-solid fa-box-archive"></i>
-                            <b>05. Tayyor mahsulot</b>
-                        </div>
-                    </div>
-
                     <h3 class="section-title" id="faqSection">Ko'p Beriladigan <span>Savollar</span></h3>
                     <div class="faq-container">
                         <div class="faq-item" tabindex="0" role="button" onclick="toggleFaq(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFaq(this)}">
@@ -1393,6 +1550,19 @@
                     </div>
 
                     <div class="grid" id="webProductsGrid"></div>
+                </div>
+            </div>
+
+            <!-- ===== JARAYON ===== -->
+            <div class="web-page" id="pageProcess" data-page="process">
+                <section class="page-hero">
+                    <span class="eyebrow"><i class="fa-solid fa-recycle"></i> Ishlab chiqarish</span>
+                    <h1>Qayta Ishlash <span>Jarayoni</span></h1>
+                    <p>Xazon qanday qilib briketga aylanadi? Har bir bosqichni bosing va u haqida batafsil o'qing.</p>
+                </section>
+                <div class="container">
+                    <div class="process-stepper" id="processStepper" role="tablist"></div>
+                    <div class="process-detail" id="processDetail" aria-live="polite"></div>
                 </div>
             </div>
 
@@ -1495,7 +1665,7 @@
                     <ul>
                         <li><a role="button" tabindex="0" onclick="openWebPage('products')">Mahsulotlar</a></li>
                         <li><a role="button" tabindex="0" onclick="openWebPage('info')">Ma'lumotlar</a></li>
-                        <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
+                        <li><a role="button" tabindex="0" onclick="openWebPage('process')">Jarayon</a></li>
                         <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
                     </ul>
                 </div>
@@ -1748,6 +1918,7 @@
                 renderPublicComments();
                 renderBanner();
                 renderMediaGallery();
+                renderProcess();
             } else if (viewId === 'userCabinetView') {
                 await Promise.all([loadPublicData(), loadMyOrders()]);
                 if (!currentUser) return switchView('authView');
@@ -1812,6 +1983,85 @@
             }).join('');
         }
 
+        // ---------- Qayta ishlash jarayoni ----------
+        const PROCESS_STEPS = [
+            {
+                icon: 'fa-truck-ramp-box', title: "Yig'ish",
+                lead: "Hamma narsa xom ashyodan boshlanadi. Kuzda ko'cha, bog' va xiyobonlarga to'kilgan xazonlar yoqib yuborilmaydi, balki yig'ib olinadi va foydali xom ashyoga aylanadi.",
+                steps: ["Xazon, mayda shoxlar va o'simlik qoldiqlari yig'iladi", "Yig'ilgan xom ashyo ishlab chiqarish joyiga olib kelinadi", "Xom ashyo ishlov berish uchun omborga joylanadi"],
+                why: "Xazonni yoqish havoni ifloslantiradi. Uni yig'ib qayta ishlash esa chiqindini yoqilg'iga aylantiradi.",
+                result: "Ishlab chiqarishga tayyor xom ashyo."
+            },
+            {
+                icon: 'fa-filter', title: "Saralash",
+                lead: "Yig'ilgan xom ashyo ichida plastik, tosh yoki metall kabi begona narsalar uchrashi mumkin. Briket sifatli bo'lishi uchun ular ajratib olinadi.",
+                steps: ["Plastik, tosh, shisha va metall kabi begona narsalar ajratiladi", "Chirigan yoki yaroqsiz qismlar olib tashlanadi", "Faqat toza o'simlik massasi keyingi bosqichga o'tadi"],
+                why: "Xom ashyo qanchalik toza bo'lsa, briket shunchalik toza va barqaror yonadi.",
+                result: "Toza, aralashmasiz o'simlik massasi."
+            },
+            {
+                icon: 'fa-gears', title: "Qayta ishlash",
+                lead: "Saralangan xom ashyo presslashga tayyorlanadi: maydalanadi va kerakli holatga keltiriladi, shunda u bir tekis zichlanadi.",
+                steps: ["Xom ashyo maydalanadi", "Massa bir xil tarkibga keltiriladi", "Presslash uchun mos holatga tayyorlanadi"],
+                why: "Bir xil maydalangan massa tekis zichlashadi, shuning uchun briket mustahkam chiqadi.",
+                result: "Presslashga tayyor, bir xil massa."
+            },
+            {
+                icon: 'fa-industry', title: "Presslash",
+                lead: "Eng muhim bosqich. Tayyorlangan massa press yordamida yuqori bosim ostida zichlanadi va briket shakliga keltiriladi. Hech qanday zararli kimyoviy birikma qo'shilmaydi, mahsulot tabiiy usulda presslanadi.",
+                steps: ["Massa press qoliplariga yuklanadi", "Yuqori bosim ostida zich briketga aylanadi", "Kimyoviy qo'shimchalarsiz, tabiiy usulda shakllanadi"],
+                why: "Zichlik briketning uzoq yonishiga sabab bo'ladi: u oddiy o'tindan 2-3 barobar uzoq, taxminan 4-6 soat issiqlik beradi.",
+                result: "Zich, mustahkam va ekologik toza briket."
+            },
+            {
+                icon: 'fa-box-archive', title: "Tayyor mahsulot",
+                lead: "Presslangan briketlar tekshiriladi va qadoqlanadi. Shundan so'ng ular saytdagi mahsulotlar ro'yxatiga chiqadi va buyurtma uchun tayyor bo'ladi.",
+                steps: ["Tayyor briketlar ko'zdan kechiriladi", "Mahsulotlar qadoqlanadi", "Buyurtma bo'yicha mijozga tayyorlanadi"],
+                why: "Qadoqlash briketni saqlash va tashishda sifatini yo'qotmasligini ta'minlaydi.",
+                result: "Saytdan buyurtma berish mumkin bo'lgan tayyor mahsulot."
+            }
+        ];
+        let currentProcessStep = 0;
+
+        function renderProcess() {
+            const st = document.getElementById('processStepper');
+            const dt = document.getElementById('processDetail');
+            if (!st || !dt) return;
+            const i = currentProcessStep, d = PROCESS_STEPS[i];
+            st.innerHTML = PROCESS_STEPS.map((x, n) => `
+                    <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
+                        <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
+                    </button>`).join('');
+            dt.innerHTML = `
+                    <div class="pd-head">
+                        <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
+                        <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
+                    </div>
+                    <p class="pd-lead">${esc(d.lead)}</p>
+                    <div class="pd-cols">
+                        <div class="pd-box">
+                            <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
+                            <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                        </div>
+                        <div>
+                            <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
+                            <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                        </div>
+                    </div>
+                    <div class="pd-nav">
+                        <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
+                        ${i < PROCESS_STEPS.length - 1
+                    ? `<button type="button" class="btn-primary" onclick="selectProcessStep(${i + 1})">Keyingisi <i class="fa-solid fa-arrow-right"></i></button>`
+                    : `<button type="button" class="btn-primary" onclick="openWebPage('products')">Mahsulotlarni ko'rish <i class="fa-solid fa-arrow-right"></i></button>`}
+                    </div>`;
+        }
+
+        function selectProcessStep(n) {
+            if (n < 0 || n >= PROCESS_STEPS.length) return;
+            currentProcessStep = n;
+            renderProcess();
+        }
+
         function showWebPage(page) {
             document.querySelectorAll('.web-page').forEach(p => p.classList.toggle('active', p.dataset.page === page));
             document.querySelectorAll('.nav-links a[data-nav]').forEach(a => a.classList.toggle('active-link', a.dataset.nav === page));
@@ -1829,7 +2079,7 @@
 
         async function scrollToSection(id) {
             await switchView('websiteView');
-            showWebPage(id === 'productsSection' ? 'products' : id === 'infoSection' ? 'info' : 'home');
+            showWebPage(id === 'productsSection' ? 'products' : id === 'infoSection' ? 'info' : id === 'processSection' ? 'process' : 'home');
             setTimeout(() => {
                 const el = document.getElementById(id);
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
