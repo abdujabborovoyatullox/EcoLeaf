@@ -1209,7 +1209,10 @@
                         <!-- Ma'lumot / rasm / reklama -->
                         <div id="infoTab" class="admin-tab-content" style="display: none;">
                             <div class="panel-card" style="max-width: 640px; margin-bottom: 24px;">
-                                <h4 class="tab-h">Saytning "Ma'lumotlar" bo'limiga joylash</h4>
+                                <h4 class="tab-h" id="ipFormTitle">Saytning "Ma'lumotlar" bo'limiga joylash</h4>
+                                <div id="ipEditBanner" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:10px; background:rgba(16,185,129,0.12); color:var(--primary); font-size:14px;">
+                                    <i class="fa-solid fa-pen"></i> Tahrirlash rejimi: <b id="ipEditName"></b> &mdash; yangi fayl tanlamasangiz, avvalgi rasm/video saqlanib qoladi.
+                                </div>
                                 <div class="input-group">
                                     <label for="ipKind">Turi</label>
                                     <select id="ipKind">
@@ -1232,6 +1235,7 @@
                                     <textarea id="ipBody" rows="5" maxlength="3000" placeholder="Rasm haqida ma'lumot yozing..."></textarea>
                                 </div>
                                 <button class="btn-primary" id="ipSaveBtn" style="margin-top: 10px;" onclick="saveInfoPost()">Saytga joylash</button>
+                                <button class="btn-primary" id="ipCancelBtn" style="margin-top: 10px; margin-left: 8px; display:none; background:transparent; border:1px solid var(--border-color, #334155); color:var(--text-muted); box-shadow:none;" onclick="cancelEditInfoPost()">Bekor qilish</button>
                             </div>
 
                             <div class="panel-card">
@@ -1458,16 +1462,16 @@
                 return;
             }
             tbody.innerHTML = list.map((p, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${esc(p.name)}</td>
-                        <td>${esc(p.packageInfo)}</td>
-                        <td>${fmt(p.price)} so'm</td>
-                        <td style="white-space:nowrap;">
-                            <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
-                            <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
-                        </td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${esc(p.name)}</td>
+                            <td>${esc(p.packageInfo)}</td>
+                            <td>${fmt(p.price)} so'm</td>
+                            <td style="white-space:nowrap;">
+                                <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                                <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                            </td>
+                        </tr>`).join('');
         }
 
         function startEdit(id) {
@@ -1531,12 +1535,12 @@
                 return;
             }
             tbody.innerHTML = items.map((p, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${esc(p.name)}</td>
-                        <td>${fmtDate(p.deletedAt)}</td>
-                        <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${esc(p.name)}</td>
+                            <td>${fmtDate(p.deletedAt)}</td>
+                            <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
+                        </tr>`).join('');
         }
 
         function restoreProduct(id) {
@@ -1557,13 +1561,13 @@
                 return;
             }
             tbody.innerHTML = data.users.map((u, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${esc(u.name)}</td>
-                        <td>${esc(fmtPhone(u.phone))}</td>
-                        <td>${fmtDate(u.createdAt)}</td>
-                        <td>${Number(u.ordersCount)} ta</td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${esc(u.name)}</td>
+                            <td>${esc(fmtPhone(u.phone))}</td>
+                            <td>${fmtDate(u.createdAt)}</td>
+                            <td>${Number(u.ordersCount)} ta</td>
+                        </tr>`).join('');
         }
 
         // ---------- Buyurtmalar ----------
@@ -1578,20 +1582,20 @@
                 return;
             }
             tbody.innerHTML = orders.map(o => `
-                    <tr>
-                        <td>${Number(o.id)}</td>
-                        <td>${fmtDate(o.createdAt)}</td>
-                        <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
-                        <td>${esc(o.productName)}</td>
-                        <td>${Number(o.quantity)} ta</td>
-                        <td>${fmt(o.total)} so'm</td>
-                        <td>${esc(o.address)}</td>
-                        <td>
-                            <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
-                                ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-                            </select>
-                        </td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${Number(o.id)}</td>
+                            <td>${fmtDate(o.createdAt)}</td>
+                            <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
+                            <td>${esc(o.productName)}</td>
+                            <td>${Number(o.quantity)} ta</td>
+                            <td>${fmt(o.total)} so'm</td>
+                            <td>${esc(o.address)}</td>
+                            <td>
+                                <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
+                                    ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                                </select>
+                            </td>
+                        </tr>`).join('');
         }
 
         function changeOrderStatus(id, status) {
@@ -1610,14 +1614,14 @@
                 return;
             }
             tbody.innerHTML = list.map((c, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${esc(c.userName)}</td>
-                        <td>${esc(c.productName)}</td>
-                        <td style="max-width:360px;">${esc(c.text)}</td>
-                        <td>${fmtDate(c.createdAt)}</td>
-                        <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${esc(c.userName)}</td>
+                            <td>${esc(c.productName)}</td>
+                            <td style="max-width:360px;">${esc(c.text)}</td>
+                            <td>${fmtDate(c.createdAt)}</td>
+                            <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
+                        </tr>`).join('');
         }
 
         function deleteComment(id) {
@@ -1691,10 +1695,10 @@
             } catch { return file; }
         }
 
-        function uploadWithProgress(url, fd, onProgress) {
+        function uploadWithProgress(url, fd, onProgress, method = 'POST') {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', url);
+                xhr.open(method, url);
                 xhr.withCredentials = true;
                 xhr.upload.onprogress = e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); };
                 xhr.onload = () => {
@@ -1707,6 +1711,50 @@
             });
         }
 
+        // ---- Tahrirlash holati ----
+        let editingInfoId = null;
+        let infoPostsCache = [];
+
+        function startEditInfoPost(id) {
+            const p = infoPostsCache.find(x => Number(x.id) === Number(id));
+            if (!p) return;
+            editingInfoId = Number(p.id);
+            document.getElementById('ipKind').value = p.kind === 'ad' ? 'ad' : 'info';
+            document.getElementById('ipTitle').value = p.title || '';
+            document.getElementById('ipBody').value = p.body || '';
+            document.getElementById('ipImage').value = '';
+            const img = document.getElementById('ipPreview');
+            const info = document.getElementById('ipFileInfo');
+            info.style.display = 'none';
+            if (p.hasImage) {
+                img.src = '/api/info-posts/' + Number(p.id) + '/image';
+                img.style.display = 'block';
+            } else {
+                img.style.display = 'none'; img.removeAttribute('src');
+                if (p.hasVideo) {
+                    info.textContent = '🎬 Joriy video saqlanadi (yangisini tanlasangiz, almashtiriladi)';
+                    info.style.display = 'block';
+                }
+            }
+            document.getElementById('ipEditName').textContent = p.title || '';
+            document.getElementById('ipEditBanner').style.display = 'block';
+            document.getElementById('ipCancelBtn').style.display = '';
+            document.getElementById('ipSaveBtn').textContent = "O'zgarishlarni saqlash";
+            document.getElementById('ipFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelEditInfoPost() {
+            editingInfoId = null;
+            document.getElementById('ipTitle').value = '';
+            document.getElementById('ipBody').value = '';
+            document.getElementById('ipImage').value = '';
+            document.getElementById('ipKind').value = 'info';
+            document.getElementById('ipEditBanner').style.display = 'none';
+            document.getElementById('ipCancelBtn').style.display = 'none';
+            document.getElementById('ipSaveBtn').textContent = 'Saytga joylash';
+            previewInfoImage();
+        }
+
         function saveInfoPost() {
             return guard(async () => {
                 const title = document.getElementById('ipTitle').value.trim();
@@ -1714,12 +1762,15 @@
                 let file = document.getElementById('ipImage').files[0] || null;
 
                 if (title.length < 2) throw new Error('Sarlavhani kiriting.');
-                if (!file && !body) throw new Error('Rasm yoki video yuklang, yoki matn yozing.');
+                const current = editingInfoId ? infoPostsCache.find(x => Number(x.id) === editingInfoId) : null;
+                const hasOldMedia = !!(current && (current.hasImage || current.hasVideo));
+                if (!file && !body && !hasOldMedia) throw new Error('Rasm yoki video yuklang, yoki matn yozing.');
 
                 const isVideo = !!file && file.type.startsWith('video/');
                 const btn = document.getElementById('ipSaveBtn');
                 btn.disabled = true;
                 btn.textContent = 'Yuklanmoqda...';
+                const editId = editingInfoId;
                 try {
                     if (file && !isVideo) {
                         file = await shrinkImage(file);
@@ -1732,9 +1783,9 @@
                     fd.append('body', body);
                     if (file) fd.append(isVideo ? 'video' : 'image', file, file.name);
 
-                    const res = await uploadWithProgress('/api/admin/info-posts', fd, pct => {
+                    const res = await uploadWithProgress(editId ? '/api/admin/info-posts/' + editId : '/api/admin/info-posts', fd, pct => {
                         btn.textContent = pct < 100 ? `Yuklanmoqda... ${pct}%` : 'Serverga saqlanmoqda...';
-                    });
+                    }, editId ? 'PUT' : 'POST');
                     if (!res.ok) {
                         if (res.status === 401 || res.status === 403) showLogin();
                         const msg = res.status === 413
@@ -1743,35 +1794,36 @@
                         throw new Error(msg);
                     }
 
-                    showToast(res.data.message);
-                    document.getElementById('ipTitle').value = '';
-                    document.getElementById('ipBody').value = '';
-                    document.getElementById('ipImage').value = '';
-                    previewInfoImage();
+                    showToast((res.data && res.data.message) || (editId ? "O'zgarishlar saqlandi." : 'Joylandi.'));
+                    cancelEditInfoPost();
                     await loadInfoPosts();
                 } finally {
                     btn.disabled = false;
-                    btn.textContent = 'Saytga joylash';
+                    btn.textContent = editingInfoId ? "O'zgarishlarni saqlash" : 'Saytga joylash';
                 }
             });
         }
 
         async function loadInfoPosts() {
             const list = await api('/info-posts');
+            infoPostsCache = list;
             const tbody = document.getElementById('infoPostsTableBody');
             if (list.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Hali hech narsa joylanmagan</td></tr>`;
                 return;
             }
             tbody.innerHTML = list.map((p, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${p.hasVideo ? '<i class="fa-solid fa-circle-play" style="font-size:28px;color:var(--primary);"></i>' : p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
-                        <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
-                        <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
-                        <td>${fmtDate(p.createdAt)}</td>
-                        <td><button onclick="deleteInfoPost(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
-                    </tr>`).join('');
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${p.hasVideo ? '<i class="fa-solid fa-circle-play" style="font-size:28px;color:var(--primary);"></i>' : p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
+                            <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
+                            <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
+                            <td>${fmtDate(p.createdAt)}</td>
+                            <td style="white-space:nowrap;">
+                                <button onclick="startEditInfoPost(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                                <button onclick="deleteInfoPost(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                            </td>
+                        </tr>`).join('');
         }
 
         function deleteInfoPost(id) {
@@ -1779,6 +1831,7 @@
             return guard(async () => {
                 const res = await api('/info-posts/' + id, { method: 'DELETE' });
                 showToast(res.message);
+                if (editingInfoId === Number(id)) cancelEditInfoPost();
                 await loadInfoPosts();
             });
         }
@@ -1816,19 +1869,19 @@
                     : `<p style="color:var(--text-muted); font-size:13.5px;">Bu davrda sotuvlar bo'lmagan.</p>`;
 
                 document.getElementById('reportResult').innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
-                        <div class="stats-dashboard" style="margin-bottom:20px;">
-                            ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
-                            ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
-                            ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
-                            ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
-                            ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
-                            ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
-                            ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
-                            ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
-                        </div>
-                        <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
-                        <div class="table-wrap">${top}</div>`;
+                            <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
+                            <div class="stats-dashboard" style="margin-bottom:20px;">
+                                ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
+                                ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
+                                ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
+                                ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
+                                ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
+                                ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
+                                ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
+                                ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
+                            </div>
+                            <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
+                            <div class="table-wrap">${top}</div>`;
             });
         }
 
