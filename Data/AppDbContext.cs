@@ -17,6 +17,7 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<SiteSetting> Settings => Set<SiteSetting>();
     public DbSet<InfoPost> InfoPosts => Set<InfoPost>();
+    public DbSet<InfoPostChunk> InfoPostChunks => Set<InfoPostChunk>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -76,7 +77,16 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
             e.Property(x => x.Title).HasMaxLength(120).IsRequired();
             e.Property(x => x.Body).HasMaxLength(3000);
             e.Property(x => x.ImageContentType).HasMaxLength(50);
+            e.Property(x => x.VideoContentType).HasMaxLength(50);
             e.HasIndex(x => x.CreatedAt);
+        });
+
+        b.Entity<InfoPostChunk>(e =>
+        {
+            e.ToTable("info_post_chunks");
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => new { x.PostId, x.Seq }).IsUnique();
+            e.HasOne<InfoPost>().WithMany().HasForeignKey(x => x.PostId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<SiteSetting>(e =>

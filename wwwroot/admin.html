@@ -1222,12 +1222,13 @@
                                     <input type="text" id="ipTitle" maxlength="120" placeholder="Masalan: Yangi partiya briketlar keldi">
                                 </div>
                                 <div class="input-group">
-                                    <label for="ipImage">Rasm (JPG, PNG, WEBP, GIF)</label>
-                                    <input type="file" id="ipImage" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewInfoImage()">
+                                    <label for="ipImage">Rasm yoki video (JPG, PNG, WEBP, GIF, MP4, MOV, WEBM)</label>
+                                    <input type="file" id="ipImage" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" onchange="previewInfoImage()">
+                                    <div id="ipFileInfo" style="display:none; margin-top:10px; color:var(--text-muted); font-size:13px;"></div>
                                     <img id="ipPreview" alt="" style="display:none; max-width:100%; max-height:220px; margin-top:10px; border-radius:10px; object-fit:contain;">
                                 </div>
                                 <div class="input-group">
-                                    <label for="ipBody">Rasm ostidagi ma'lumot</label>
+                                    <label for="ipBody">Rasm / video ostidagi ma'lumot</label>
                                     <textarea id="ipBody" rows="5" maxlength="3000" placeholder="Rasm haqida ma'lumot yozing..."></textarea>
                                 </div>
                                 <button class="btn-primary" id="ipSaveBtn" style="margin-top: 10px;" onclick="saveInfoPost()">Saytga joylash</button>
@@ -1656,6 +1657,14 @@
         function previewInfoImage() {
             const f = document.getElementById('ipImage').files[0];
             const img = document.getElementById('ipPreview');
+            const info = document.getElementById('ipFileInfo');
+            info.style.display = 'none';
+            if (f && f.type.startsWith('video/')) {
+                img.style.display = 'none'; img.removeAttribute('src');
+                info.textContent = '🎬 ' + f.name + ' (' + (f.size / 1048576).toFixed(1) + ' MB)';
+                info.style.display = 'block';
+                return;
+            }
             if (!f) { img.style.display = 'none'; img.removeAttribute('src'); return; }
             if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
             const url = URL.createObjectURL(f);
@@ -1682,6 +1691,22 @@
             } catch { return file; }
         }
 
+        function uploadWithProgress(url, fd, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url);
+                xhr.withCredentials = true;
+                xhr.upload.onprogress = e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); };
+                xhr.onload = () => {
+                    let data = null;
+                    try { data = JSON.parse(xhr.responseText); } catch { }
+                    resolve({ status: xhr.status, ok: xhr.status >= 200 && xhr.status < 300, data });
+                };
+                xhr.onerror = () => reject(new Error("Server bilan aloqa yo'q. Internetni tekshiring."));
+                xhr.send(fd);
+            });
+        }
+
         function saveInfoPost() {
             return guard(async () => {
                 const title = document.getElementById('ipTitle').value.trim();
@@ -1689,33 +1714,36 @@
                 let file = document.getElementById('ipImage').files[0] || null;
 
                 if (title.length < 2) throw new Error('Sarlavhani kiriting.');
-                if (!file && !body) throw new Error('Rasm yuklang yoki matn yozing.');
+                if (!file && !body) throw new Error('Rasm yoki video yuklang, yoki matn yozing.');
 
+                const isVideo = !!file && file.type.startsWith('video/');
                 const btn = document.getElementById('ipSaveBtn');
                 btn.disabled = true;
                 btn.textContent = 'Yuklanmoqda...';
                 try {
-                    if (file) file = await shrinkImage(file);
-                    if (file && file.size > MAX_UPLOAD) throw new Error('Rasm hajmi 5 MB dan oshmasligi kerak.');
+                    if (file && !isVideo) {
+                        file = await shrinkImage(file);
+                        if (file.size > MAX_UPLOAD) throw new Error('Rasm hajmi 5 MB dan oshmasligi kerak.');
+                    }
 
                     const fd = new FormData();
                     fd.append('kind', document.getElementById('ipKind').value);
                     fd.append('title', title);
                     fd.append('body', body);
-                    if (file) fd.append('image', file, file.name);
+                    if (file) fd.append(isVideo ? 'video' : 'image', file, file.name);
 
-                    let res;
-                    try { res = await fetch('/api/admin/info-posts', { method: 'POST', body: fd, credentials: 'same-origin' }); }
-                    catch { throw new Error("Server bilan aloqa yo'q. Internetni tekshiring."); }
-                    let data = null;
-                    try { data = await res.json(); } catch { }
+                    const res = await uploadWithProgress('/api/admin/info-posts', fd, pct => {
+                        btn.textContent = pct < 100 ? `Yuklanmoqda... ${pct}%` : 'Serverga saqlanmoqda...';
+                    });
                     if (!res.ok) {
                         if (res.status === 401 || res.status === 403) showLogin();
-                        const msg = res.status === 413 ? 'Rasm juda katta.' : (data && (data.message || data.title)) || 'Xatolik yuz berdi.';
+                        const msg = res.status === 413
+                            ? "Fayl juda katta: server uni qabul qilmadi (hosting limiti)."
+                            : (res.data && (res.data.message || res.data.title)) || 'Xatolik yuz berdi (' + res.status + ').';
                         throw new Error(msg);
                     }
 
-                    showToast(data.message);
+                    showToast(res.data.message);
                     document.getElementById('ipTitle').value = '';
                     document.getElementById('ipBody').value = '';
                     document.getElementById('ipImage').value = '';
@@ -1738,7 +1766,7 @@
             tbody.innerHTML = list.map((p, i) => `
                     <tr>
                         <td>${i + 1}</td>
-                        <td>${p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
+                        <td>${p.hasVideo ? '<i class="fa-solid fa-circle-play" style="font-size:28px;color:var(--primary);"></i>' : p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
                         <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
                         <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
                         <td>${fmtDate(p.createdAt)}</td>

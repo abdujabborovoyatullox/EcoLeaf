@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 using Web_sayt.Data;
 using Web_sayt.Models;
 using Web_sayt.Services;
@@ -78,6 +79,7 @@ public class PublicController : ControllerBase
                 p.Title,
                 p.Body,
                 HasImage = p.ImageData != null,
+                HasVideo = p.VideoContentType != null,
                 p.CreatedAt
             })
             .ToListAsync();
@@ -101,6 +103,82 @@ public class PublicController : ControllerBase
         Response.Headers.CacheControl = "public, max-age=2592000, immutable";
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return File(img.ImageData, img.ImageContentType ?? "application/octet-stream");
+    }
+
+    // Video: Range so'rovlarini qo'llaydi (brauzer videoni oldinga-orqaga surishi va birdan oqim bilan ijro etishi uchun)
+    [HttpGet("info-posts/{id:int}/video")]
+    public async Task<IActionResult> GetInfoPostVideo(int id)
+    {
+        var meta = await _db.InfoPosts
+            .AsNoTracking()
+            .Where(p => p.Id == id && p.VideoContentType != null)
+            .Select(p => new { p.VideoContentType, p.VideoSize })
+            .FirstOrDefaultAsync();
+
+        if (meta == null || meta.VideoSize <= 0) return NotFound();
+
+        long total = meta.VideoSize;
+        long start = 0, end = total - 1;
+        var status = StatusCodes.Status200OK;
+
+        if (RangeHeaderValue.TryParse(Request.Headers.Range.ToString(), out var range)
+            && range.Unit == "bytes" && range.Ranges.Count == 1)
+        {
+            var r = range.Ranges.First();
+            if (r.From.HasValue)
+            {
+                start = r.From.Value;
+                end = r.To.HasValue ? Math.Min(r.To.Value, total - 1) : total - 1;
+            }
+            else if (r.To.HasValue)
+            {
+                start = Math.Max(0, total - r.To.Value);
+            }
+
+            if (start > end || start >= total)
+            {
+                Response.Headers["Content-Range"] = $"bytes */{total}";
+                return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+            }
+            status = StatusCodes.Status206PartialContent;
+        }
+
+        Response.StatusCode = status;
+        Response.ContentType = meta.VideoContentType!;
+        Response.ContentLength = end - start + 1;
+        Response.Headers["Accept-Ranges"] = "bytes";
+        Response.Headers.CacheControl = "public, max-age=2592000, immutable";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        if (status == StatusCodes.Status206PartialContent)
+            Response.Headers["Content-Range"] = $"bytes {start}-{end}/{total}";
+
+        var ct = HttpContext.RequestAborted;
+        try
+        {
+            var seq = (int)(start / InfoPostChunk.Size);
+            long pos = (long)seq * InfoPostChunk.Size;
+
+            while (pos <= end)
+            {
+                var data = await _db.InfoPostChunks
+                    .AsNoTracking()
+                    .Where(c => c.PostId == id && c.Seq == seq)
+                    .Select(c => c.Data)
+                    .FirstOrDefaultAsync(ct);
+                if (data == null) break;
+
+                var from = (int)Math.Max(0, start - pos);
+                var to = (int)Math.Min(data.Length - 1, end - pos);
+                if (to >= from)
+                    await Response.Body.WriteAsync(data.AsMemory(from, to - from + 1), ct);
+
+                pos += data.Length;
+                seq++;
+            }
+        }
+        catch (OperationCanceledException) { /* foydalanuvchi videoni yopdi */ }
+
+        return new EmptyResult();
     }
 
     [HttpGet("comments")]

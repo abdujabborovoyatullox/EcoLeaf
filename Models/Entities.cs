@@ -70,7 +70,21 @@ public class InfoPost
     public string Body { get; set; } = string.Empty;
     public byte[]? ImageData { get; set; }
     public string? ImageContentType { get; set; }
+    /// <summary>Video bo'lsa: turi va hajmi. Video baytlari InfoPostChunk jadvalida bo'laklab saqlanadi.</summary>
+    public string? VideoContentType { get; set; }
+    public long VideoSize { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>Video fayl bo'lagi (1 MB). Katta videolar xotirani to'ldirmasligi uchun bo'laklab yoziladi va o'qiladi.</summary>
+public class InfoPostChunk
+{
+    public const int Size = 1024 * 1024;
+
+    public long Id { get; set; }
+    public int PostId { get; set; }
+    public int Seq { get; set; }
+    public byte[] Data { get; set; } = Array.Empty<byte>();
 }
 
 public static class InfoPostKind

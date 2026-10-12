@@ -2710,16 +2710,21 @@
                 const isAd = p.kind === 'ad';
                 const badgeHtml = (extra = '') => isAd
                     ? `<span class="media-badge ad-badge ${extra}"><i class="fa-solid fa-bullhorn"></i>Reklama</span>`
-                    : `<span class="media-badge ${extra}"><i class="fa-solid fa-image"></i>Ma'lumot</span>`;
+                    : p.hasVideo
+                        ? `<span class="media-badge ${extra}"><i class="fa-solid fa-circle-play"></i>Video</span>`
+                        : `<span class="media-badge ${extra}"><i class="fa-solid fa-image"></i>Ma'lumot</span>`;
                 const imgUrl = `/api/info-posts/${Number(p.id)}/image`;
-                const frame = p.hasImage
-                    ? `<div class="media-frame post-img" onclick="openLightbox('${imgUrl}')">${badgeHtml()}<img src="${imgUrl}" alt="${esc(p.title)}" loading="lazy"></div>`
-                    : '';
+                const hasMedia = p.hasImage || p.hasVideo;
+                const frame = p.hasVideo
+                    ? `<div class="media-frame">${badgeHtml()}<video controls preload="metadata" playsinline src="/api/info-posts/${Number(p.id)}/video"></video></div>`
+                    : p.hasImage
+                        ? `<div class="media-frame post-img" onclick="openLightbox('${imgUrl}')">${badgeHtml()}<img src="${imgUrl}" alt="${esc(p.title)}" loading="lazy"></div>`
+                        : '';
                 const body = p.body ? `<p class="post-body">${esc(p.body)}</p>` : '';
                 return `<div class="media-card">
                             ${frame}
-                            <div class="media-body ${p.hasImage ? '' : 'post-text-only'}">
-                                ${p.hasImage ? '' : badgeHtml('static')}
+                            <div class="media-body ${hasMedia ? '' : 'post-text-only'}">
+                                ${hasMedia ? '' : badgeHtml('static')}
                                 <h4>${esc(p.title)}</h4>${body}
                                 <span class="post-date">${esc(dateOf(p.createdAt))}</span>
                             </div>

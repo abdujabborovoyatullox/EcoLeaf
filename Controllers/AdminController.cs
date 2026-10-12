@@ -80,6 +80,7 @@ public class InfoPostForm
     public string? Title { get; set; }
     public string? Body { get; set; }
     public IFormFile? Image { get; set; }
+    public IFormFile? Video { get; set; }
 }
 
 [ApiController]
@@ -456,14 +457,15 @@ public class AdminController : ControllerBase
         var posts = await _db.InfoPosts
             .AsNoTracking()
             .OrderByDescending(p => p.CreatedAt)
-            .Select(p => new { p.Id, p.Kind, p.Title, p.Body, HasImage = p.ImageData != null, p.CreatedAt })
+            .Select(p => new { p.Id, p.Kind, p.Title, p.Body, HasImage = p.ImageData != null, HasVideo = p.VideoContentType != null, p.CreatedAt })
             .ToListAsync();
 
         return Ok(posts);
     }
 
     [HttpPost("info-posts")]
-    [RequestSizeLimit(MaxImageBytes + 512 * 1024)]
+    [DisableRequestSizeLimit]
+    [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue)]
     public async Task<IActionResult> CreateInfoPost([FromForm] InfoPostForm form)
     {
         var title = (form.Title ?? "").Trim();
@@ -493,21 +495,97 @@ public class AdminController : ControllerBase
                 return BadRequest(new { message = "Faqat JPG, PNG, WEBP yoki GIF rasm yuklash mumkin." });
         }
 
-        if (data == null && body.Length == 0)
-            return BadRequest(new { message = "Rasm yuklang yoki matn yozing." });
+        // Video: birinchi bo'lak o'qilib, fayl haqiqatan video ekani tekshiriladi
+        Stream? videoStream = null;
+        byte[]? buf = null;
+        var firstLen = 0;
+        string? videoType = null;
 
-        var post = new InfoPost
+        try
         {
-            Kind = kind,
-            Title = title,
-            Body = body,
-            ImageData = data,
-            ImageContentType = contentType
-        };
-        _db.InfoPosts.Add(post);
-        await _db.SaveChangesAsync();
+            if (form.Video is { Length: > 0 })
+            {
+                videoStream = form.Video.OpenReadStream();
+                buf = new byte[InfoPostChunk.Size];
+                firstLen = await ReadFullAsync(videoStream, buf);
+                videoType = DetectVideoType(buf, firstLen);
+                if (videoType == null)
+                    return BadRequest(new { message = "Faqat MP4, MOV yoki WEBM video yuklash mumkin." });
+            }
 
-        return Ok(new { message = "Saytga joylandi! Foydalanuvchilar hozir ko'ra oladi.", id = post.Id });
+            if (data == null && videoType == null && body.Length == 0)
+                return BadRequest(new { message = "Rasm yoki video yuklang, yoki matn yozing." });
+
+            var post = new InfoPost
+            {
+                Kind = kind,
+                Title = title,
+                Body = body,
+                ImageData = data,
+                ImageContentType = contentType,
+                VideoContentType = videoType,
+                VideoSize = videoType != null ? form.Video!.Length : 0
+            };
+            _db.InfoPosts.Add(post);
+            await _db.SaveChangesAsync();
+            var postId = post.Id;
+
+            if (videoType != null)
+            {
+                try
+                {
+                    var seq = 0;
+                    var len = firstLen;
+                    while (len > 0)
+                    {
+                        _db.InfoPostChunks.Add(new InfoPostChunk
+                        {
+                            PostId = postId,
+                            Seq = seq++,
+                            Data = len == buf!.Length ? buf : buf[..len]
+                        });
+                        await _db.SaveChangesAsync();
+                        _db.ChangeTracker.Clear();
+                        len = await ReadFullAsync(videoStream!, buf!);
+                    }
+                }
+                catch
+                {
+                    // Yarim yuklangan video qolib ketmasin
+                    _db.ChangeTracker.Clear();
+                    await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM info_posts WHERE \"Id\" = {postId}");
+                    throw;
+                }
+            }
+
+            return Ok(new { message = "Saytga joylandi! Foydalanuvchilar hozir ko'ra oladi.", id = postId });
+        }
+        finally
+        {
+            if (videoStream != null) await videoStream.DisposeAsync();
+        }
+    }
+
+    private static async Task<int> ReadFullAsync(Stream s, byte[] buf)
+    {
+        var total = 0;
+        while (total < buf.Length)
+        {
+            var r = await s.ReadAsync(buf.AsMemory(total));
+            if (r == 0) break;
+            total += r;
+        }
+        return total;
+    }
+
+    private static string? DetectVideoType(byte[] d, int len)
+    {
+        if (len < 12) return null;
+        // MP4 / MOV: 5-8 baytlarda "ftyp"
+        if (d[4] == 0x66 && d[5] == 0x74 && d[6] == 0x79 && d[7] == 0x70) return "video/mp4";
+        // WEBM / MKV (EBML sarlavhasi)
+        if (d[0] == 0x1A && d[1] == 0x45 && d[2] == 0xDF && d[3] == 0xA3) return "video/webm";
+        return null;
     }
 
     [HttpDelete("info-posts/{id:int}")]
