@@ -1,0 +1,31 @@
+# Render Blueprint: web servis + PostgreSQL baza bitta faylda.
+# Render Dashboard -> New -> Blueprint -> GitHub repo'ni tanlang.
+databases:
+  - name: ecoleaf-db
+    databaseName: ecoleaf
+    user: ecoleaf
+    plan: free            # Production uchun pullik rejaga o'ting (README'ga qarang)
+
+services:
+  - type: web
+    name: ecoleaf
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      # Baza manzili avtomatik ulanadi
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecoleaf-db
+          property: connectionString
+      # Admin hisobi (faqat birinchi ishga tushishda yaratiladi)
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true     # Render o'zi kuchli parol yaratadi (Dashboard -> Environment'da ko'rasiz)
+      # Telegram: qiymatlarni Dashboard'da o'zingiz kiritasiz (kodda/GitHub'da saqlanmaydi)
+      - key: Telegram__BotToken
+        sync: false
+      - key: Telegram__ChatId
+        sync: false

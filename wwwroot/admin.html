@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#090d16">
+    <title>EcoAdmin — Boshqaruv paneli</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='96' fill='%230b4d38'/%3E%3Cpath d='M100 148V86' stroke='%236ee7a8' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M100 114C70 114 52 94 50 66C80 64 100 82 100 114Z' fill='%2316c784'/%3E%3Cpath d='M100 92C100 60 122 40 154 38C156 70 134 92 100 92Z' fill='%236ee7a8'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer
+        }
+
+        .logo-mark {
+            flex: none;
+            filter: drop-shadow(0 0 8px rgba(22,199,132,.45))
+        }
+
+        .logo-text {
+            background: linear-gradient(100deg,var(--text-color),var(--primary-light) 60%,var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .faq-item:focus-visible {
+            outline: 2px solid var(--primary-light);
+            outline-offset: 2px
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .drop {
+                display: none
+            }
+
+            * {
+                animation-duration: .01s !important;
+                scroll-behavior: auto !important
+            }
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --accent: #f97316;
+            --bg-color: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --card-solid: #111827;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --sidebar-bg: #0b1120;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="light"] {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #10b981;
+            --accent: #ea580c;
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-solid: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --sidebar-bg: #ffffff;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--primary);
+            }
+
+        /* Toast Notification */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--card-solid);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(12px);
+            animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease 2.7s forwards;
+        }
+
+            .toast.success {
+                border-left: 4px solid var(--primary);
+            }
+
+            .toast.error {
+                border-left: 4px solid var(--accent);
+            }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
+
+        /* Weather background animation */
+        .weather-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .drop {
+            position: absolute;
+            background: linear-gradient(transparent, rgba(52, 211, 153, 0.3));
+            width: 1.5px;
+            height: 25px;
+            opacity: 0.5;
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            0% {
+                transform: translateY(-50px);
+            }
+
+            100% {
+                transform: translateY(105vh);
+            }
+        }
+
+        #appContainer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Common Header */
+        header.web-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            letter-spacing: -0.5px;
+        }
+
+            .logo i {
+                background: rgba(16, 185, 129, 0.15);
+                padding: 8px;
+                border-radius: 10px;
+                font-size: 18px;
+            }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+            .nav-links a {
+                text-decoration: none;
+                color: var(--text-color);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                opacity: 0.75;
+                position: relative;
+            }
+
+                .nav-links a::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -4px;
+                    left: 0;
+                    width: 0;
+                    height: 2px;
+                    background: var(--primary);
+                    border-radius: 2px;
+                    transition: width 0.3s ease;
+                }
+
+                .nav-links a:hover {
+                    opacity: 1;
+                    color: var(--primary);
+                }
+
+                    .nav-links a:hover::after {
+                        width: 100%;
+                    }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-toggle-btn {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .theme-toggle-btn:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+                filter: brightness(1.05);
+            }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-outline:hover {
+                background: rgba(16, 185, 129, 0.1);
+                transform: translateY(-2px);
+            }
+
+        /* VIEWS CONTAINER */
+        .view-section {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            width: 100%;
+            height: calc(100vh - 73px);
+        }
+
+            .view-section.active {
+                display: flex;
+                flex-direction: column;
+            }
+
+        /* --- 1. WEBSITE FRONT VIEW --- */
+        .hero {
+            background: linear-gradient(135deg, rgba(9, 13, 22, 0.85), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .hero h1 {
+                font-size: 44px;
+                margin-bottom: 16px;
+                font-weight: 800;
+                letter-spacing: -1px;
+                background: linear-gradient(to right, #ffffff, #94a3b8);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .hero p {
+                font-size: 16px;
+                opacity: 0.9;
+                margin-bottom: 30px;
+                max-width: 650px;
+                margin-left: auto;
+                margin-right: auto;
+                line-height: 1.6;
+                color: #cbd5e1;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 24px;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 26px;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+            .section-title span {
+                color: var(--primary);
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--card-solid);
+            padding: 26px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), var(--accent));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-md);
+                border-color: rgba(16, 185, 129, 0.3);
+            }
+
+                .card:hover::before {
+                    opacity: 1;
+                }
+
+            .card h3 {
+                color: var(--text-color);
+                margin-bottom: 12px;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 700;
+            }
+
+            .card p {
+                font-size: 13.5px;
+                color: var(--text-muted);
+                margin-bottom: 20px;
+                line-height: 1.6;
+            }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-slider-group {
+            max-width: 520px;
+            margin: 24px auto;
+        }
+
+            .calc-slider-group input[type="range"] {
+                width: 100%;
+                accent-color: var(--primary);
+                cursor: pointer;
+                height: 8px;
+                border-radius: 4px;
+                background: var(--border-color);
+            }
+
+        .calc-result-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            border-radius: 12px;
+            max-width: 520px;
+            margin: 0 auto;
+            font-size: 14.5px;
+            line-height: 1.7;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Process Steps */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+            margin-bottom: 50px;
+        }
+
+        @media(max-width: 768px) {
+            .process-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        .process-step {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 13.5px;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .process-step:hover {
+                transform: translateY(-3px);
+                border-color: var(--primary);
+            }
+
+            .process-step i {
+                font-size: 28px;
+                color: var(--primary);
+                margin-bottom: 14px;
+                display: block;
+                background: rgba(16, 185, 129, 0.1);
+                width: 55px;
+                height: 55px;
+                line-height: 55px;
+                border-radius: 14px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+        /* FAQ Accordion */
+        .faq-container {
+            max-width: 850px;
+            margin: 0 auto 50px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .faq-question {
+            padding: 18px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .faq-question:hover {
+                color: var(--primary);
+            }
+
+        .faq-answer {
+            padding: 0 22px 18px 22px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            display: none;
+            line-height: 1.7;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--card-solid);
+            border-top: 1px solid var(--border-color);
+            padding: 50px 5% 30px 5%;
+            font-size: 13.5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-col h4 {
+            color: var(--primary);
+            margin-bottom: 18px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+            .footer-col ul li {
+                margin-bottom: 10px;
+            }
+
+                .footer-col ul li a {
+                    text-decoration: none;
+                    color: var(--text-muted);
+                }
+
+                    .footer-col ul li a:hover {
+                        color: var(--primary);
+                        padding-left: 4px;
+                    }
+
+        /* --- 2. AUTHENTICATION VIEW --- */
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 24px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 380px;
+            background: var(--card-solid);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+
+            .auth-tab.active {
+                color: var(--primary);
+                border-bottom-color: var(--primary);
+            }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                font-size: 12.5px;
+                color: var(--text-color);
+            }
+
+            .input-group input, .input-group textarea, .input-group select {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1px solid var(--border-color);
+                background: var(--bg-color);
+                color: var(--text-color);
+                border-radius: 10px;
+                outline: none;
+                font-size: 13.5px;
+            }
+
+                .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+                }
+
+        /* --- 3. USER CABINET VIEW --- */
+        .cabinet-layout {
+            display: flex;
+            height: 100%;
+        }
+
+        .cabinet-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cabinet-main {
+            flex: 1;
+            padding: 35px;
+            overflow-y: auto;
+            background: var(--bg-color);
+        }
+
+        .cabinet-menu-item {
+            padding: 14px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13.5px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+            .cabinet-menu-item:hover, .cabinet-menu-item.active {
+                background-color: rgba(16, 185, 129, 0.12);
+                color: var(--primary);
+                font-weight: 600;
+            }
+
+        .panel-card {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+            font-size: 13.5px;
+        }
+
+            .admin-table th, .admin-table td {
+                border-bottom: 1px solid var(--border-color);
+                padding: 14px 16px;
+                text-align: left;
+            }
+
+            .admin-table th {
+                background-color: rgba(16, 185, 129, 0.06);
+                color: var(--primary);
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 12px;
+                letter-spacing: 0.5px;
+            }
+
+            .admin-table tr:hover td {
+                background-color: rgba(16, 185, 129, 0.03);
+            }
+
+        /* --- 4. ADMIN PANEL VIEW --- */
+        .admin-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 18px;
+            gap: 14px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            padding-left: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .sidebar-menu li a {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                color: var(--text-color);
+                font-size: 13.5px;
+                font-weight: 500;
+            }
+
+                .sidebar-menu li a:hover, .sidebar-menu li a.active {
+                    background-color: rgba(16, 185, 129, 0.12);
+                    color: var(--primary);
+                    font-weight: 600;
+                }
+
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .admin-topbar {
+            background: var(--card-solid);
+            padding: 18px 35px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .admin-tabs-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 18px;
+        }
+
+        .tab-btn {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 9px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .tab-btn:hover, .tab-btn.active {
+                background-color: var(--primary);
+                color: white;
+                border-color: var(--primary);
+                transform: translateY(-1px);
+            }
+
+        .comment-box {
+            background: var(--bg-color);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 13.5px;
+            border-left: 4px solid var(--primary);
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                border-color: var(--primary);
+            }
+
+            .stat-card i {
+                font-size: 32px;
+                color: var(--primary);
+                margin-bottom: 12px;
+                background: rgba(16, 185, 129, 0.1);
+                width: 60px;
+                height: 60px;
+                line-height: 60px;
+                border-radius: 14px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            .stat-card h4 {
+                font-size: 26px;
+                color: var(--text-color);
+                font-weight: 800;
+            }
+
+            .stat-card p {
+                font-size: 13.5px;
+                color: var(--text-muted);
+                margin-top: 6px;
+            }
+
+        .search-box-container {
+            margin-bottom: 24px;
+        }
+
+            .search-box-container input {
+                width: 100%;
+                padding: 14px 18px;
+                border: 1px solid var(--border-color);
+                background: var(--card-solid);
+                color: var(--text-color);
+                border-radius: 12px;
+                outline: none;
+                font-size: 14px;
+                box-shadow: var(--shadow-sm);
+            }
+
+                .search-box-container input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+                }
+
+        /* ---- admin.html uchun qo'shimchalar ---- */
+        .view-section { height: 100vh; }
+        .tab-h { margin-bottom: 16px; color: var(--primary); font-size: 15px; font-weight: 700; }
+        .table-wrap { overflow-x: auto; }
+        .admin-table th, .admin-table td { vertical-align: top; }
+        .stats-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+        @media (max-width: 900px) {
+            .admin-sidebar { display: none; }
+            .admin-content-body { padding: 16px; }
+            .admin-topbar { padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div id="toastContainer"></div>
+
+    <div id="appContainer">
+
+        <!-- ADMIN KIRISH -->
+        <div id="loginView" class="view-section active" style="justify-content: center; align-items: center;">
+            <div class="auth-wrapper">
+                <div class="auth-container">
+                    <div style="text-align:center; margin-bottom: 22px;">
+                        <div style="font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="fa-solid fa-seedling"></i> EcoAdmin
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">Boshqaruv paneliga kirish</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="adminUser">Login</label>
+                        <input type="text" id="adminUser" placeholder="Admin login" autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminPass">Parol</label>
+                        <input type="password" id="adminPass" placeholder="Parol" autocomplete="current-password">
+                    </div>
+                    <button class="btn-primary" style="width: 100%; padding: 12px; margin-top: 6px;" onclick="adminLogin()">Kirish</button>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <a href="/" style="font-size: 13px; color: var(--text-muted); text-decoration: none;">&larr; Saytga qaytish</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div id="adminPanelView" class="view-section">
+            <div class="admin-layout">
+                <div class="admin-sidebar">
+                    <div style="font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <i class="fa-solid fa-seedling"></i> EcoAdmin
+                    </div>
+                    <div class="sidebar-section-title">Asosiy</div>
+                    <ul class="sidebar-menu" id="sidebarMain"></ul>
+                    <div class="sidebar-section-title" style="margin-top: 20px;">Sozlamalar</div>
+                    <ul class="sidebar-menu" id="sidebarSettings"></ul>
+                    <div style="margin-top: auto;">
+                        <a href="/" target="_blank" rel="noopener" style="display:block; text-align:center; font-size: 13px; color: var(--text-muted); text-decoration: none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Saytni ochish</a>
+                    </div>
+                </div>
+
+                <div class="admin-main">
+                    <div class="admin-topbar">
+                        <h3 id="adminPageTitle" style="color: var(--primary); font-size: 17px; font-weight: 700;">Sotuvdagi mahsulotlar</h3>
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <button onclick="toggleTheme()" class="theme-toggle-btn" aria-label="Mavzuni almashtirish"><i class="fa-solid fa-moon"></i></button>
+                            <span style="font-size: 13.5px;"><b id="adminName">Admin</b></span>
+                            <button class="btn-outline" style="padding: 7px 14px; font-size: 12.5px;" onclick="adminLogout()">Chiqish</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-content-body">
+                        <div class="admin-tabs-row" id="tabsRow"></div>
+
+                        <!-- Mahsulotlar -->
+                        <div id="productsTab" class="admin-tab-content">
+                            <div class="panel-card">
+                                <h4 class="tab-h">Faol mahsulotlar ro'yxati</h4>
+                                <div class="search-box-container" style="margin-bottom: 18px;">
+                                    <input type="text" id="adminSearchInput" placeholder="Mahsulot nomi bo'yicha qidirish..." oninput="renderProducts()">
+                                </div>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Nomi</th><th>Qadoq</th><th>Narxi</th><th>Amal</th></tr></thead>
+                                        <tbody id="adminProductsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Yaratish / tahrirlash -->
+                        <div id="createProductTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 600px;">
+                                <h4 class="tab-h" id="productFormTitle">Yangi mahsulot qo'shish</h4>
+                                <div class="input-group">
+                                    <label for="newProdName">Mahsulot nomi</label>
+                                    <input type="text" id="newProdName" placeholder="Masalan: Eco Briket Premium" maxlength="120">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newProdWeight">Qadoq og'irligi</label>
+                                    <input type="text" id="newProdWeight" placeholder="Masalan: 20 kg" maxlength="60">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newProdPrice">Narxi (so'mda)</label>
+                                    <input type="number" id="newProdPrice" placeholder="Masalan: 55000" min="1">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newProdDesc">Tavsif</label>
+                                    <textarea id="newProdDesc" rows="3" placeholder="Mahsulot haqida qisqacha ma'lumot..." maxlength="1000"></textarea>
+                                </div>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                    <button class="btn-primary" style="margin-top: 10px;" id="saveProductBtn" onclick="saveProduct()">Mahsulotni Saqlash</button>
+                                    <button class="btn-outline" style="margin-top: 10px; display:none;" id="cancelEditBtn" onclick="cancelEdit()">Bekor qilish</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Foydalanuvchilar -->
+                        <div id="usersTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card">
+                                <h4 class="tab-h">Ro'yxatdan o'tgan foydalanuvchilar <span id="usersCountBadge" style="color: var(--text-muted); font-weight: 500;"></span></h4>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Ismi</th><th>Telefon</th><th>Ro'yxatdan o'tgan</th><th>Buyurtmalar</th></tr></thead>
+                                        <tbody id="adminUsersTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buyurtmalar -->
+                        <div id="ordersTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card">
+                                <h4 class="tab-h">Kelib tushgan buyurtmalar</h4>
+                                <div class="input-group" style="max-width: 260px;">
+                                    <label for="orderStatusFilter">Holat bo'yicha</label>
+                                    <select id="orderStatusFilter" onchange="loadOrders()">
+                                        <option value="">Barchasi</option>
+                                        <option>Kutilmoqda</option>
+                                        <option>Jarayonda</option>
+                                        <option>Bajarildi</option>
+                                        <option>Bekor qilindi</option>
+                                    </select>
+                                </div>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Sana</th><th>Mijoz</th><th>Mahsulot</th><th>Miqdor</th><th>Jami</th><th>Manzil</th><th>Holat</th></tr></thead>
+                                        <tbody id="adminOrdersTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- O'chirilganlar -->
+                        <div id="deletedTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card">
+                                <h4 class="tab-h" style="color: var(--accent);">O'chirilgan mahsulotlar tarixi</h4>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Mahsulot Nomi</th><th>O'chirilgan vaqti</th><th>Tiklash</th></tr></thead>
+                                        <tbody id="deletedTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Izohlar -->
+                        <div id="commentsTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card">
+                                <h4 class="tab-h">Foydalanuvchi izohlari</h4>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Foydalanuvchi</th><th>Mahsulot</th><th>Izoh</th><th>Sana</th><th>Amal</th></tr></thead>
+                                        <tbody id="adminCommentsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reklama -->
+                        <div id="adsTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 600px;">
+                                <h4 class="tab-h">Saytga Banner / Reklama joylash</h4>
+                                <div class="input-group">
+                                    <label for="adTitle">Reklama sarlavhasi</label>
+                                    <input type="text" id="adTitle" placeholder="Masalan: Bahorgi aksiya!" maxlength="100">
+                                </div>
+                                <div class="input-group">
+                                    <label for="adText">Reklama matni</label>
+                                    <textarea id="adText" rows="3" placeholder="Aksiya shartlari va chegirmalar..." maxlength="400"></textarea>
+                                </div>
+                                <div class="input-group">
+                                    <label for="adImage">Rasm havolasi (ixtiyoriy)</label>
+                                    <input type="url" id="adImage" placeholder="https://..." maxlength="500">
+                                </div>
+                                <div class="input-group">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                        <input type="checkbox" id="adActive" style="width: 18px; height: 18px; accent-color: var(--primary);"> Reklama saytda ko'rinsin
+                                    </label>
+                                </div>
+                                <button class="btn-primary" style="margin-top: 10px;" onclick="saveAd()">Saqlash</button>
+                            </div>
+                        </div>
+
+                        <!-- Hisobotlar -->
+                        <div id="reportsTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card">
+                                <h4 class="tab-h">Kunlik va oylik hisobotlar</h4>
+                                <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+                                    <div class="input-group" style="min-width:140px;">
+                                        <label for="repType">Turi</label>
+                                        <select id="repType" onchange="toggleDayField()">
+                                            <option value="daily">Kunlik</option>
+                                            <option value="monthly">Oylik</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group" style="width:110px;">
+                                        <label for="repYear">Yil</label>
+                                        <input type="number" id="repYear" min="2000" max="2100">
+                                    </div>
+                                    <div class="input-group" style="width:110px;">
+                                        <label for="repMonth">Oy</label>
+                                        <input type="number" id="repMonth" min="1" max="12">
+                                    </div>
+                                    <div class="input-group" style="width:110px;" id="repDayGroup">
+                                        <label for="repDay">Kun</label>
+                                        <input type="number" id="repDay" min="1" max="31">
+                                    </div>
+                                    <button class="btn-primary" style="margin-bottom: 18px;" onclick="loadReport()">Ko'rsatish</button>
+                                </div>
+                                <div id="reportResult"></div>
+                            </div>
+                        </div>
+
+                        <!-- Nastroyka -->
+                        <div id="settingsTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 600px;">
+                                <h4 class="tab-h">Tizim Sozlamalari</h4>
+                                <div class="input-group">
+                                    <label style="margin-bottom: 8px;">Ma'lumotlar bazasini yuklab olish (JSON)</label>
+                                    <button class="btn-outline" style="width: 100%;" onclick="exportDataJSON()"><i class="fa-solid fa-download"></i> Ma'lumotlarni Eksport qilish</button>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Mahsulotlar, foydalanuvchilar (parolsiz), buyurtmalar va izohlar yuklanadi.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parol -->
+                        <div id="passwordTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 600px;">
+                                <h4 class="tab-h">Admin Login va Parolini O'zgartirish</h4>
+                                <div class="input-group">
+                                    <label for="curPass">Joriy parol</label>
+                                    <input type="password" id="curPass" placeholder="Joriy parolni kiriting" autocomplete="current-password">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newLog">Yangi Login</label>
+                                    <input type="text" id="newLog" placeholder="Yangi login kiriting" autocomplete="username" maxlength="50">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newPass">Yangi Parol (kamida 8 belgi)</label>
+                                    <input type="password" id="newPass" placeholder="Yangi parol kiriting" autocomplete="new-password">
+                                </div>
+                                <div class="input-group">
+                                    <label for="newPass2">Yangi parolni takrorlang</label>
+                                    <input type="password" id="newPass2" placeholder="Yangi parolni qayta kiriting" autocomplete="new-password">
+                                </div>
+                                <button class="btn-primary" style="margin-top: 10px;" onclick="updateCredentials()">O'zgarishlarni saqlash</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const fmt = n => Number(n || 0).toLocaleString('en-US');
+        const fmtDate = iso => iso ? new Date(iso).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        const fmtPhone = p => String(p || '').replace(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, '+$1 $2 $3 $4 $5');
+
+        // ---------- Server bilan ishlash ----------
+        async function api(path, { method = 'GET', body } = {}) {
+            const init = { method, credentials: 'same-origin', headers: {} };
+            if (body !== undefined) {
+                init.headers['Content-Type'] = 'application/json';
+                init.body = JSON.stringify(body);
+            }
+            let res;
+            try { res = await fetch('/api/admin' + path, init); }
+            catch { throw new Error("Server bilan aloqa yo'q. Internetni tekshiring."); }
+
+            let data = null;
+            try { data = await res.json(); } catch { /* bo'sh javob */ }
+
+            if (!res.ok) {
+                const err = new Error((data && data.message) || 'Xatolik yuz berdi.');
+                err.status = res.status;
+                // Sessiya tugagan bo'lsa (login so'rovidan tashqari) - kirish oynasiga qaytamiz
+                if ((res.status === 401 || res.status === 403) && path !== '/login') showLogin();
+                throw err;
+            }
+            return data;
+        }
+
+        let busy = false;
+        async function guard(fn) {
+            if (busy) return;
+            busy = true;
+            try { await fn(); }
+            catch (e) { showToast(e.message, 'error'); }
+            finally { busy = false; }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${esc(message)}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ---------- Tablar ----------
+        const TABS = [
+            { id: 'productsTab', icon: 'fa-box', label: 'Mahsulotlar', title: 'Sotuvdagi mahsulotlar', group: 'main' },
+            { id: 'createProductTab', icon: 'fa-plus-circle', label: 'Mahsulot yaratish', title: 'Mahsulot yaratish', group: 'main' },
+            { id: 'ordersTab', icon: 'fa-clipboard-list', label: 'Buyurtmalar', title: "Buyurtmalar ro'yxati", group: 'main' },
+            { id: 'usersTab', icon: 'fa-users', label: 'Foydalanuvchilar', title: "Foydalanuvchilar ro'yxati", group: 'main' },
+            { id: 'deletedTab', icon: 'fa-trash-can', label: "O'chirilganlar", title: "O'chirilganlar", group: 'main' },
+            { id: 'commentsTab', icon: 'fa-comments', label: 'Izohlar', title: 'Izohlar', group: 'main' },
+            { id: 'adsTab', icon: 'fa-bullhorn', label: 'Reklama joylash', title: 'Reklama joylash', group: 'main' },
+            { id: 'reportsTab', icon: 'fa-chart-column', label: 'Hisobotlar', title: 'Hisobotlar', group: 'main' },
+            { id: 'settingsTab', icon: 'fa-gear', label: 'Nastroyka', title: 'Tizim sozlamalari', group: 'settings' },
+            { id: 'passwordTab', icon: 'fa-lock', label: "Parolni o'zgartirish", title: "Parolni o'zgartirish", group: 'settings' }
+        ];
+
+        function buildNavigation() {
+            const side = g => TABS.filter(t => t.group === g).map(t =>
+                `<li><a href="#" data-tab="${t.id}" onclick="showTab('${t.id}'); return false;"><i class="fa-solid ${t.icon}"></i> ${esc(t.label)}</a></li>`).join('');
+            document.getElementById('sidebarMain').innerHTML = side('main');
+            document.getElementById('sidebarSettings').innerHTML = side('settings');
+            document.getElementById('tabsRow').innerHTML = TABS.map(t =>
+                `<button class="tab-btn" data-tab="${t.id}" onclick="showTab('${t.id}')"><i class="fa-solid ${t.icon}"></i> ${esc(t.label)}</button>`).join('');
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('active', el.dataset.tab === tabId));
+            const tab = TABS.find(t => t.id === tabId);
+            document.getElementById('adminPageTitle').innerText = tab ? tab.title : 'Admin Panel';
+
+            // Har safar ochilganda yangi ma'lumot yuklanadi
+            if (tabId === 'productsTab') loadProducts();
+            else if (tabId === 'usersTab') loadUsers();
+            else if (tabId === 'ordersTab') loadOrders();
+            else if (tabId === 'deletedTab') loadDeleted();
+            else if (tabId === 'commentsTab') loadComments();
+            else if (tabId === 'adsTab') loadAd();
+            else if (tabId === 'reportsTab') initReport();
+        }
+
+        // ---------- Kirish / chiqish ----------
+        function showLogin() {
+            document.getElementById('adminPanelView').classList.remove('active');
+            document.getElementById('loginView').classList.add('active');
+        }
+
+        function showPanel(username) {
+            document.getElementById('loginView').classList.remove('active');
+            document.getElementById('adminPanelView').classList.add('active');
+            document.getElementById('adminName').textContent = username;
+            showTab('productsTab');
+        }
+
+        function adminLogin() {
+            return guard(async () => {
+                const username = document.getElementById('adminUser').value.trim();
+                const password = document.getElementById('adminPass').value;
+                if (!username || !password) { showToast('Login va parolni kiriting!', 'error'); return; }
+
+                const res = await api('/login', { method: 'POST', body: { username, password } });
+                document.getElementById('adminPass').value = '';
+                showToast('Admin sifatida xush kelibsiz!');
+                showPanel(res.username);
+            });
+        }
+
+        async function adminLogout() {
+            try { await api('/logout', { method: 'POST' }); } catch { /* baribir chiqamiz */ }
+            showLogin();
+            showToast('Tizimdan chiqildi.');
+        }
+
+        // ---------- Mahsulotlar ----------
+        let products = [];
+        let editingId = null;
+
+        async function loadProducts() {
+            products = await api('/products');
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('adminProductsTableBody');
+            const q = document.getElementById('adminSearchInput').value.toLowerCase();
+            const list = products.filter(p => p.name.toLowerCase().includes(q));
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Mahsulotlar mavjud emas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${esc(p.name)}</td>
+                    <td>${esc(p.packageInfo)}</td>
+                    <td>${fmt(p.price)} so'm</td>
+                    <td style="white-space:nowrap;">
+                        <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                        <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function startEdit(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            editingId = id;
+            document.getElementById('newProdName').value = p.name;
+            document.getElementById('newProdWeight').value = p.packageInfo || '';
+            document.getElementById('newProdPrice').value = p.price;
+            document.getElementById('newProdDesc').value = p.description || '';
+            document.getElementById('productFormTitle').textContent = 'Mahsulotni tahrirlash';
+            document.getElementById('saveProductBtn').textContent = "O'zgarishlarni saqlash";
+            document.getElementById('cancelEditBtn').style.display = '';
+            showTab('createProductTab');
+        }
+
+        function resetProductForm() {
+            editingId = null;
+            ['newProdName', 'newProdWeight', 'newProdPrice', 'newProdDesc'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('productFormTitle').textContent = "Yangi mahsulot qo'shish";
+            document.getElementById('saveProductBtn').textContent = 'Mahsulotni Saqlash';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        function cancelEdit() { resetProductForm(); showTab('productsTab'); }
+
+        function saveProduct() {
+            return guard(async () => {
+                const name = document.getElementById('newProdName').value.trim();
+                const packageInfo = document.getElementById('newProdWeight').value.trim();
+                const price = Number(document.getElementById('newProdPrice').value);
+                const description = document.getElementById('newProdDesc').value.trim();
+
+                if (!name || !(price > 0)) { showToast("Iltimos, nom va narxni to'g'ri to'ldiring!", 'error'); return; }
+
+                const body = { name, packageInfo, price, description };
+                const res = editingId
+                    ? await api('/products/' + editingId, { method: 'PUT', body })
+                    : await api('/products', { method: 'POST', body });
+
+                showToast(res.message);
+                resetProductForm();
+                showTab('productsTab');
+            });
+        }
+
+        function deleteProduct(id) {
+            if (!confirm("Mahsulotni o'chirishni tasdiqlaysizmi? (Keyin \"O'chirilganlar\" bo'limidan tiklash mumkin)")) return;
+            return guard(async () => {
+                const res = await api('/products/' + id, { method: 'DELETE' });
+                showToast(res.message);
+                await loadProducts();
+            });
+        }
+
+        async function loadDeleted() {
+            const items = await api('/products/deleted');
+            const tbody = document.getElementById('deletedTableBody');
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">O'chirilgan mahsulotlar mavjud emas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = items.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${esc(p.name)}</td>
+                    <td>${fmtDate(p.deletedAt)}</td>
+                    <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
+                </tr>`).join('');
+        }
+
+        function restoreProduct(id) {
+            return guard(async () => {
+                const res = await api('/products/' + id + '/restore', { method: 'POST' });
+                showToast(res.message);
+                await loadDeleted();
+            });
+        }
+
+        // ---------- Foydalanuvchilar ----------
+        async function loadUsers() {
+            const data = await api('/users');
+            document.getElementById('usersCountBadge').textContent = `(${data.count} ta)`;
+            const tbody = document.getElementById('adminUsersTableBody');
+            if (data.users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Foydalanuvchilar mavjud emas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.users.map((u, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${esc(u.name)}</td>
+                    <td>${esc(fmtPhone(u.phone))}</td>
+                    <td>${fmtDate(u.createdAt)}</td>
+                    <td>${Number(u.ordersCount)} ta</td>
+                </tr>`).join('');
+        }
+
+        // ---------- Buyurtmalar ----------
+        const STATUSES = ['Kutilmoqda', 'Jarayonda', 'Bajarildi', 'Bekor qilindi'];
+
+        async function loadOrders() {
+            const status = document.getElementById('orderStatusFilter').value;
+            const orders = await api('/orders' + (status ? '?status=' + encodeURIComponent(status) : ''));
+            const tbody = document.getElementById('adminOrdersTableBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Buyurtmalar mavjud emas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td>${Number(o.id)}</td>
+                    <td>${fmtDate(o.createdAt)}</td>
+                    <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
+                    <td>${esc(o.productName)}</td>
+                    <td>${Number(o.quantity)} ta</td>
+                    <td>${fmt(o.total)} so'm</td>
+                    <td>${esc(o.address)}</td>
+                    <td>
+                        <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
+                            ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function changeOrderStatus(id, status) {
+            return guard(async () => {
+                const res = await api('/orders/' + id + '/status', { method: 'PUT', body: { status } });
+                showToast(res.message);
+            }).then(() => loadOrders().catch(() => { }));
+        }
+
+        // ---------- Izohlar ----------
+        async function loadComments() {
+            const list = await api('/comments');
+            const tbody = document.getElementById('adminCommentsTableBody');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Izohlar mavjud emas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((c, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${esc(c.userName)}</td>
+                    <td>${esc(c.productName)}</td>
+                    <td style="max-width:360px;">${esc(c.text)}</td>
+                    <td>${fmtDate(c.createdAt)}</td>
+                    <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
+                </tr>`).join('');
+        }
+
+        function deleteComment(id) {
+            if (!confirm("Izohni o'chirishni tasdiqlaysizmi?")) return;
+            return guard(async () => {
+                const res = await api('/comments/' + id, { method: 'DELETE' });
+                showToast(res.message);
+                await loadComments();
+            });
+        }
+
+        // ---------- Reklama ----------
+        async function loadAd() {
+            const ad = await api('/settings/ads');
+            document.getElementById('adTitle').value = ad.title || '';
+            document.getElementById('adText').value = ad.description || '';
+            document.getElementById('adImage').value = ad.imageUrl || '';
+            document.getElementById('adActive').checked = !!ad.isActive;
+        }
+
+        function saveAd() {
+            return guard(async () => {
+                const body = {
+                    title: document.getElementById('adTitle').value.trim(),
+                    description: document.getElementById('adText').value.trim(),
+                    imageUrl: document.getElementById('adImage').value.trim(),
+                    isActive: document.getElementById('adActive').checked
+                };
+                const res = await api('/settings/ads', { method: 'PUT', body });
+                showToast(res.message);
+            });
+        }
+
+        // ---------- Hisobotlar ----------
+        function initReport() {
+            if (document.getElementById('repYear').value) return;
+            const now = new Date(Date.now() + 5 * 3600 * 1000); // Toshkent vaqti (UTC+5)
+            document.getElementById('repYear').value = now.getUTCFullYear();
+            document.getElementById('repMonth').value = now.getUTCMonth() + 1;
+            document.getElementById('repDay').value = now.getUTCDate();
+            toggleDayField();
+            loadReport();
+        }
+
+        function toggleDayField() {
+            document.getElementById('repDayGroup').style.display =
+                document.getElementById('repType').value === 'daily' ? '' : 'none';
+        }
+
+        function loadReport() {
+            return guard(async () => {
+                const type = document.getElementById('repType').value;
+                const year = document.getElementById('repYear').value;
+                const month = document.getElementById('repMonth').value;
+                const day = document.getElementById('repDay').value;
+                let qs = `?type=${type}&year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+                if (type === 'daily') qs += `&day=${encodeURIComponent(day)}`;
+
+                const r = await api('/reports' + qs);
+                const card = (icon, value, label) => `<div class="stat-card"><i class="fa-solid ${icon}"></i><h4>${esc(value)}</h4><p>${esc(label)}</p></div>`;
+                const top = r.topProducts.length
+                    ? `<table class="admin-table"><thead><tr><th>Mahsulot</th><th>Sotilgan</th><th>Tushum</th></tr></thead><tbody>${
+                        r.topProducts.map(t => `<tr><td>${esc(t.name)}</td><td>${Number(t.quantity)} ta</td><td>${fmt(t.revenue)} so'm</td></tr>`).join('')
+                      }</tbody></table>`
+                    : `<p style="color:var(--text-muted); font-size:13.5px;">Bu davrda sotuvlar bo'lmagan.</p>`;
+
+                document.getElementById('reportResult').innerHTML = `
+                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
+                    <div class="stats-dashboard" style="margin-bottom:20px;">
+                        ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
+                        ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
+                        ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
+                        ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
+                        ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
+                        ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
+                        ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
+                        ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
+                    </div>
+                    <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
+                    <div class="table-wrap">${top}</div>`;
+            });
+        }
+
+        // ---------- Sozlamalar ----------
+        function exportDataJSON() {
+            return guard(async () => {
+                const data = await api('/export');
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ecoleaf_database_' + new Date().toISOString().slice(0, 10) + '.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showToast("Ma'lumotlar yuklab olindi!");
+            });
+        }
+
+        function updateCredentials() {
+            return guard(async () => {
+                const currentPassword = document.getElementById('curPass').value;
+                const newUsername = document.getElementById('newLog').value.trim();
+                const newPassword = document.getElementById('newPass').value;
+                const again = document.getElementById('newPass2').value;
+
+                if (!currentPassword || !newUsername || !newPassword) { showToast('Barcha maydonlarni to\'ldiring!', 'error'); return; }
+                if (newPassword.length < 8) { showToast('Yangi parol kamida 8 belgidan iborat bo\'lsin!', 'error'); return; }
+                if (newPassword !== again) { showToast('Yangi parollar bir xil emas!', 'error'); return; }
+
+                const res = await api('/change-credentials', { method: 'POST', body: { currentPassword, newUsername, newPassword } });
+                showToast(res.message);
+                document.getElementById('adminName').textContent = res.username;
+                ['curPass', 'newLog', 'newPass', 'newPass2'].forEach(id => document.getElementById(id).value = '');
+            });
+        }
+
+        // ---------- Mavzu ----------
+        function toggleTheme() {
+            const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', next);
+            try { localStorage.setItem('ecoTheme', next); } catch { /* ruxsat yo'q */ }
+        }
+
+        // ---------- Ishga tushirish ----------
+        window.addEventListener('load', async () => {
+            buildNavigation();
+            try {
+                const saved = localStorage.getItem('ecoTheme');
+                if (saved === 'light' || saved === 'dark') document.body.setAttribute('data-theme', saved);
+            } catch { /* ruxsat yo'q */ }
+
+            try {
+                const me = await api('/me');
+                if (me.authenticated) showPanel(me.username); else showLogin();
+            } catch { showLogin(); }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && (e.target.id === 'adminUser' || e.target.id === 'adminPass')) adminLogin();
+        });
+    </script>
+</body>
+</html>

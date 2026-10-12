@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Leaf — Xazonlardan ekologik briketlar</title>
+    <meta name="description" content="Eco Leaf: xazon va chiqindilardan tayyorlangan ekologik briketlar. Uzoq yonadi, kimyoviy qo'shimchasiz. Toshkent bo'ylab yetkazib berish.">
+    <meta name="theme-color" content="#090d16">
+    <meta property="og:title" content="Eco Leaf — ekologik briketlar">
+    <meta property="og:description" content="Tabiatni asraymiz, uyingizni issiq qilamiz.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='96' fill='%230b4d38'/%3E%3Cpath d='M100 148V86' stroke='%236ee7a8' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M100 114C70 114 52 94 50 66C80 64 100 82 100 114Z' fill='%2316c784'/%3E%3Cpath d='M100 92C100 60 122 40 154 38C156 70 134 92 100 92Z' fill='%236ee7a8'/%3E%3C/svg%3E">
+    <meta name="google-site-verification" content="QNP3WF-sKQOpa5jMxWMyOavU9F5HrDkmSVL6ZAgDScg" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer
+        }
+
+        .logo-mark {
+            flex: none;
+            filter: drop-shadow(0 0 8px rgba(22,199,132,.45))
+        }
+
+        .logo-text {
+            background: linear-gradient(100deg,var(--text-color),var(--primary-light) 60%,var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .faq-item:focus-visible {
+            outline: 2px solid var(--primary-light);
+            outline-offset: 2px
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .drop {
+                display: none
+            }
+
+            * {
+                animation-duration: .01s !important;
+                scroll-behavior: auto !important
+            }
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --accent: #f97316;
+            --bg-color: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --card-solid: #111827;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --sidebar-bg: #0b1120;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="light"] {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #10b981;
+            --accent: #ea580c;
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-solid: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --sidebar-bg: #ffffff;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--primary);
+            }
+
+        /* Toast Notification */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--card-solid);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(12px);
+            animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease 2.7s forwards;
+        }
+
+            .toast.success {
+                border-left: 4px solid var(--primary);
+            }
+
+            .toast.error {
+                border-left: 4px solid var(--accent);
+            }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
+
+        /* Weather background animation */
+        .weather-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .drop {
+            position: absolute;
+            background: linear-gradient(transparent, rgba(52, 211, 153, 0.3));
+            width: 1.5px;
+            height: 25px;
+            opacity: 0.5;
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            0% {
+                transform: translateY(-50px);
+            }
+
+            100% {
+                transform: translateY(105vh);
+            }
+        }
+
+        #appContainer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Common Header */
+        header.web-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            letter-spacing: -0.5px;
+        }
+
+            .logo i {
+                background: rgba(16, 185, 129, 0.15);
+                padding: 8px;
+                border-radius: 10px;
+                font-size: 18px;
+            }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+            .nav-links a {
+                text-decoration: none;
+                color: var(--text-color);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                opacity: 0.75;
+                position: relative;
+            }
+
+                .nav-links a::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -4px;
+                    left: 0;
+                    width: 0;
+                    height: 2px;
+                    background: var(--primary);
+                    border-radius: 2px;
+                    transition: width 0.3s ease;
+                }
+
+                .nav-links a:hover {
+                    opacity: 1;
+                    color: var(--primary);
+                }
+
+                    .nav-links a:hover::after {
+                        width: 100%;
+                    }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-toggle-btn {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .theme-toggle-btn:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+                filter: brightness(1.05);
+            }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-outline:hover {
+                background: rgba(16, 185, 129, 0.1);
+                transform: translateY(-2px);
+            }
+
+        /* VIEWS CONTAINER */
+        .view-section {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            width: 100%;
+            height: calc(100vh - 73px);
+        }
+
+            .view-section.active {
+                display: flex;
+                flex-direction: column;
+            }
+
+        /* --- 1. WEBSITE FRONT VIEW --- */
+        .hero {
+            background: linear-gradient(135deg, rgba(9, 13, 22, 0.85), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .hero h1 {
+                font-size: 44px;
+                margin-bottom: 16px;
+                font-weight: 800;
+                letter-spacing: -1px;
+                background: linear-gradient(to right, #ffffff, #94a3b8);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .hero p {
+                font-size: 16px;
+                opacity: 0.9;
+                margin-bottom: 30px;
+                max-width: 650px;
+                margin-left: auto;
+                margin-right: auto;
+                line-height: 1.6;
+                color: #cbd5e1;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 24px;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 26px;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+            .section-title span {
+                color: var(--primary);
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--card-solid);
+            padding: 26px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), var(--accent));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-md);
+                border-color: rgba(16, 185, 129, 0.3);
+            }
+
+                .card:hover::before {
+                    opacity: 1;
+                }
+
+            .card h3 {
+                color: var(--text-color);
+                margin-bottom: 12px;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 700;
+            }
+
+            .card p {
+                font-size: 13.5px;
+                color: var(--text-muted);
+                margin-bottom: 20px;
+                line-height: 1.6;
+            }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-slider-group {
+            max-width: 520px;
+            margin: 24px auto;
+        }
+
+            .calc-slider-group input[type="range"] {
+                width: 100%;
+                accent-color: var(--primary);
+                cursor: pointer;
+                height: 8px;
+                border-radius: 4px;
+                background: var(--border-color);
+            }
+
+        .calc-result-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            border-radius: 12px;
+            max-width: 520px;
+            margin: 0 auto;
+            font-size: 14.5px;
+            line-height: 1.7;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Process Steps */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+            margin-bottom: 50px;
+        }
+
+        @media(max-width: 768px) {
+            .process-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        .process-step {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 13.5px;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .process-step:hover {
+                transform: translateY(-3px);
+                border-color: var(--primary);
+            }
+
+            .process-step i {
+                font-size: 28px;
+                color: var(--primary);
+                margin-bottom: 14px;
+                display: block;
+                background: rgba(16, 185, 129, 0.1);
+                width: 55px;
+                height: 55px;
+                line-height: 55px;
+                border-radius: 14px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+        /* FAQ Accordion */
+        .faq-container {
+            max-width: 850px;
+            margin: 0 auto 50px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .faq-question {
+            padding: 18px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .faq-question:hover {
+                color: var(--primary);
+            }
+
+        .faq-answer {
+            padding: 0 22px 18px 22px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            display: none;
+            line-height: 1.7;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--card-solid);
+            border-top: 1px solid var(--border-color);
+            padding: 50px 5% 30px 5%;
+            font-size: 13.5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-col h4 {
+            color: var(--primary);
+            margin-bottom: 18px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+            .footer-col ul li {
+                margin-bottom: 10px;
+            }
+
+                .footer-col ul li a {
+                    text-decoration: none;
+                    color: var(--text-muted);
+                }
+
+                    .footer-col ul li a:hover {
+                        color: var(--primary);
+                        padding-left: 4px;
+                    }
+
+        /* --- 2. AUTHENTICATION VIEW --- */
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 24px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 380px;
+            background: var(--card-solid);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+
+            .auth-tab.active {
+                color: var(--primary);
+                border-bottom-color: var(--primary);
+            }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                font-size: 12.5px;
+                color: var(--text-color);
+            }
+
+            .input-group input, .input-group textarea, .input-group select {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1px solid var(--border-color);
+                background: var(--bg-color);
+                color: var(--text-color);
+                border-radius: 10px;
+                outline: none;
+                font-size: 13.5px;
+            }
+
+                .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+                }
+
+        /* --- 3. USER CABINET VIEW --- */
+        .cabinet-layout {
+            display: flex;
+            height: 100%;
+        }
+
+        .cabinet-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cabinet-main {
+            flex: 1;
+            padding: 35px;
+            overflow-y: auto;
+            background: var(--bg-color);
+        }
+
+        .cabinet-menu-item {
+            padding: 14px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13.5px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+            .cabinet-menu-item:hover, .cabinet-menu-item.active {
+                background-color: rgba(16, 185, 129, 0.12);
+                color: var(--primary);
+                font-weight: 600;
+            }
+
+        .panel-card {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+            font-size: 13.5px;
+        }
+
+            .admin-table th, .admin-table td {
+                border-bottom: 1px solid var(--border-color);
+                padding: 14px 16px;
+                text-align: left;
+            }
+
+            .admin-table th {
+                background-color: rgba(16, 185, 129, 0.06);
+                color: var(--primary);
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 12px;
+                letter-spacing: 0.5px;
+            }
+
+            .admin-table tr:hover td {
+                background-color: rgba(16, 185, 129, 0.03);
+            }
+
+        /* --- 4. ADMIN PANEL VIEW --- */
+        .admin-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 18px;
+            gap: 14px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            padding-left: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .sidebar-menu li a {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                color: var(--text-color);
+                font-size: 13.5px;
+                font-weight: 500;
+            }
+
+                .sidebar-menu li a:hover, .sidebar-menu li a.active {
+                    background-color: rgba(16, 185, 129, 0.12);
+                    color: var(--primary);
+                    font-weight: 600;
+                }
+
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .admin-topbar {
+            background: var(--card-solid);
+            padding: 18px 35px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .admin-tabs-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 18px;
+        }
+
+        .tab-btn {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 9px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .tab-btn:hover, .tab-btn.active {
+                background-color: var(--primary);
+                color: white;
+                border-color: var(--primary);
+                transform: translateY(-1px);
+            }
+
+        .comment-box {
+            background: var(--bg-color);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 13.5px;
+            border-left: 4px solid var(--primary);
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                border-color: var(--primary);
+            }
+
+            .stat-card i {
+                font-size: 32px;
+                color: var(--primary);
+                margin-bottom: 12px;
+                background: rgba(16, 185, 129, 0.1);
+                width: 60px;
+                height: 60px;
+                line-height: 60px;
+                border-radius: 14px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            .stat-card h4 {
+                font-size: 26px;
+                color: var(--text-color);
+                font-weight: 800;
+            }
+
+            .stat-card p {
+                font-size: 13.5px;
+                color: var(--text-muted);
+                margin-top: 6px;
+            }
+
+        .search-box-container {
+            margin-bottom: 24px;
+        }
+
+            .search-box-container input {
+                width: 100%;
+                padding: 14px 18px;
+                border: 1px solid var(--border-color);
+                background: var(--card-solid);
+                color: var(--text-color);
+                border-radius: 12px;
+                outline: none;
+                font-size: 14px;
+                box-shadow: var(--shadow-sm);
+            }
+
+                .search-box-container input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+                }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="weather-container" id="weatherContainer"></div>
+    <div id="toastContainer"></div>
+
+    <div id="appContainer">
+        <!-- HEADER -->
+        <header class="web-header">
+            <div class="logo" onclick="switchView('websiteView')">
+                <svg class="logo-mark" viewBox="0 0 200 200" width="34" height="34" aria-hidden="true"><defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6ffd6" /><stop offset=".5" stop-color="#16c784" /><stop offset="1" stop-color="#0a8f5c" /></linearGradient><linearGradient id="lgB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffb0" /><stop offset=".5" stop-color="#6ee7a8" /><stop offset="1" stop-color="#16c784" /></linearGradient></defs><circle cx="100" cy="100" r="92" fill="#06281e" stroke="#6ee7a8" stroke-opacity=".6" stroke-width="5" /><path d="M100 150V86" stroke="#6ee7a8" stroke-width="10" stroke-linecap="round" /><path d="M100 116C70 116 52 96 50 66C80 64 100 82 100 116Z" fill="url(#lgA)" /><path d="M100 92C100 58 122 38 154 36C156 70 134 92 100 92Z" fill="url(#lgB)" /></svg> <span class="logo-text">Eco Leaf</span>
+            </div>
+            <ul class="nav-links">
+                <li><a role="button" tabindex="0" onclick="scrollToSection('productsSection')">Mahsulotlar</a></li>
+                <li><a role="button" tabindex="0" onclick="scrollToSection('calculatorSection')">Kalkulyator</a></li>
+                <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
+                <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
+            </ul>
+            <div class="header-actions" id="headerActions"></div>
+        </header>
+
+        <!-- 1. WEBSITE FRONT VIEW -->
+        <div id="websiteView" class="view-section">
+            <section class="hero">
+                <h1>Xazonlardan Ekologik Briketlar</h1>
+                <p>Tabiatni asraymiz, uyingizni issiq qilamiz. Chiqindilarni qayta ishlab toza energiya yaratamiz.</p>
+                <button class="btn-primary" onclick="scrollToSection('productsSection')">Mahsulotlarni ko'rish <i class="fa-solid fa-arrow-right"></i></button>
+            </section>
+
+            <div class="container">
+                <div id="bannerArea"></div>
+
+                <div class="stats-dashboard">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-users"></i>
+                        <h4 id="statUsersCount">0</h4>
+                        <p>Foydalanuvchilar</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <h4 id="statOrdersCount">0</h4>
+                        <p>Jami Buyurtmalar</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-tree"></i>
+                        <h4 id="statTreesSaved">150+</h4>
+                        <p>Saqlab qolingan daraxtlar</p>
+                    </div>
+                </div>
+
+                <h3 class="section-title" id="productsSection">Mahsulotlarimiz</h3>
+
+                <div class="search-box-container">
+                    <input type="text" id="webSearchInput" placeholder="Mahsulot nomidan qidirish..." oninput="filterWebProducts()">
+                </div>
+
+                <div class="grid" id="webProductsGrid"></div>
+
+                <div class="calculator-section" id="calculatorSection">
+                    <h3 class="section-title" style="margin-bottom: 8px;">Tejamkorlik <span>Kalkulyatori</span></h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Xazon miqdorini belgilang va taxminiy foydani hisoblang</p>
+                    <div class="calc-slider-group">
+                        <label style="font-size: 13.5px; font-weight: 600; display: block; margin-bottom: 10px;">Xazon miqdori (kg): <span id="calcWeightVal" style="color: var(--primary);">50</span> kg</label>
+                        <input type="range" id="calcRange" min="10" max="500" value="50" oninput="updateCalculator()">
+                    </div>
+                    <div class="calc-result-box" id="calcResultText">
+                        Tabiat uchun foyda: ~ 1 ta katta daraxt<br>
+                        <b>Taxminiy tejamkorlik: 35,000 so'm</b>
+                    </div>
+                </div>
+
+                <h3 class="section-title" id="processSection">Qayta Ishlash <span>Jarayoni</span></h3>
+                <div class="process-grid">
+                    <div class="process-step">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                        <b>01. Yig'ish</b>
+                    </div>
+                    <div class="process-step">
+                        <i class="fa-solid fa-filter"></i>
+                        <b>02. Saralash</b>
+                    </div>
+                    <div class="process-step">
+                        <i class="fa-solid fa-gears"></i>
+                        <b>03. Qayta ishlab</b>
+                    </div>
+                    <div class="process-step">
+                        <i class="fa-solid fa-industry"></i>
+                        <b>04. Presslash</b>
+                    </div>
+                    <div class="process-step">
+                        <i class="fa-solid fa-box-archive"></i>
+                        <b>05. Tayyor mahsulot</b>
+                    </div>
+                </div>
+
+                <h3 class="section-title" id="faqSection">Ko'p Beriladigan <span>Savollar</span></h3>
+                <div class="faq-container">
+                    <div class="faq-item" tabindex="0" role="button" onclick="toggleFaq(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFaq(this)}">
+                        <div class="faq-question">Briketlar qancha vaqt yonadi? <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i></div>
+                        <div class="faq-answer">Oddiy o'tinlarga qaraganda 2-3 barobar uzoqroq, ya'ni taxminan 4-6 soat davomida barqaror issiqlik berib yonadi.</div>
+                    </div>
+                    <div class="faq-item" tabindex="0" role="button" onclick="toggleFaq(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFaq(this)}">
+                        <div class="faq-question">Tarkibida kimyoviy moddalar bormi? <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i></div>
+                        <div class="faq-answer">Yo'q, mahsulotlarimiz 100% ekologik toza bo'lib, hech qanday zararli kimyoviy birikmalarsiz tabiiy usulda presslanadi.</div>
+                    </div>
+                </div>
+
+                <div class="panel-card" style="margin-top: 40px;">
+                    <h3 class="section-title" style="text-align: left; margin-bottom: 20px;">Foydalanuvchilar <span>Izohlari</span></h3>
+                    <div id="publicCommentsList"></div>
+                </div>
+            </div>
+
+            <footer class="site-footer">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 12px;"><svg class="logo-mark" viewBox="0 0 200 200" width="34" height="34" aria-hidden="true"><defs><linearGradient id="lgA2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6ffd6" /><stop offset=".5" stop-color="#16c784" /><stop offset="1" stop-color="#0a8f5c" /></linearGradient><linearGradient id="lgB2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffb0" /><stop offset=".5" stop-color="#6ee7a8" /><stop offset="1" stop-color="#16c784" /></linearGradient></defs><circle cx="100" cy="100" r="92" fill="#06281e" stroke="#6ee7a8" stroke-opacity=".6" stroke-width="5" /><path d="M100 150V86" stroke="#6ee7a8" stroke-width="10" stroke-linecap="round" /><path d="M100 116C70 116 52 96 50 66C80 64 100 82 100 116Z" fill="url(#lgA2)" /><path d="M100 92C100 58 122 38 154 36C156 70 134 92 100 92Z" fill="url(#lgB2)" /></svg> <span class="logo-text">Eco Leaf</span></div>
+                    <p style="color: var(--text-muted); line-height: 1.6;">Tabiatni asrash va chiqindilarni foydali energiyaga aylantirish yechimi.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Tezkor Havolalar</h4>
+                    <ul>
+                        <li><a role="button" tabindex="0" onclick="scrollToSection('productsSection')">Mahsulotlar</a></li>
+                        <li><a role="button" tabindex="0" onclick="scrollToSection('calculatorSection')">Kalkulyator</a></li>
+                        <li><a role="button" tabindex="0" onclick="scrollToSection('processSection')">Jarayon</a></li>
+                        <li><a role="button" tabindex="0" onclick="scrollToSection('faqSection')">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Bog'lanish (Aloqa)</h4>
+                    <ul>
+                        <li><i class="fa-solid fa-phone" style="color: var(--primary);"></i> +998 (90) 123-45-67</li>
+                        <li><i class="fa-brands fa-telegram" style="color: var(--primary);"></i> @EcoFriendSupport</li>
+                        <li><i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> Toshkent shahri, Olmazor tumani</li>
+                    </ul>
+                </div>
+            </footer>
+        </div>
+
+        <!-- 2. AUTHENTICATION VIEW -->
+        <div id="authView" class="view-section" style="justify-content: center; align-items: center;">
+            <div class="auth-wrapper">
+                <div class="auth-container">
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" id="loginTabBtn" onclick="switchAuthMode('login')">Kirish</div>
+                        <div class="auth-tab" id="regTabBtn" onclick="switchAuthMode('register')">Ro'yxatdan o'tish</div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div id="loginFormContainer">
+                        <div class="input-group">
+                            <label>Telefon raqam</label>
+                            <input type="tel" id="loginPhone" placeholder="+998 90 123 45 67" autocomplete="tel" inputmode="tel">
+                        </div>
+                        <div class="input-group">
+                            <label>Parol</label>
+                            <input type="password" id="loginPass" placeholder="Parol kiriting" autocomplete="current-password">
+                        </div>
+                        <button class="btn-primary" style="width: 100%; padding: 12px; margin-top: 6px;" onclick="handleLogin()">Kirish</button>
+                        <div style="text-align: center; margin-top: 16px;">
+                            <button class="btn-outline" style="width: 100%; border:none; font-size: 13px;" onclick="switchView('websiteView')">Bosh sahifaga qaytish</button>
+                        </div>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div id="registerFormContainer" style="display: none;">
+                        <div class="input-group">
+                            <label>Ism</label>
+                            <input type="text" id="regName" placeholder="Ismingizni kiriting">
+                        </div>
+                        <div class="input-group">
+                            <label>Telefon raqam</label>
+                            <input type="tel" id="regPhone" placeholder="+998 90 123 45 67" autocomplete="tel" inputmode="tel">
+                        </div>
+                        <div class="input-group">
+                            <label>Parol</label>
+                            <input type="password" id="regPass" placeholder="Parol yarating (kamida 6 belgi)" autocomplete="new-password" minlength="6">
+                        </div>
+                        <button class="btn-primary" style="width: 100%; padding: 12px; margin-top: 6px;" onclick="handleRegister()">Ro'yxatdan o'tish</button>
+                        <div style="text-align: center; margin-top: 16px;">
+                            <button class="btn-outline" style="width: 100%; border:none; font-size: 13px;" onclick="switchView('websiteView')">Bosh sahifaga qaytish</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. USER CABINET VIEW -->
+        <div id="userCabinetView" class="view-section">
+            <div class="cabinet-layout">
+                <div class="cabinet-sidebar">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 20px; font-size: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-user-circle" style="font-size: 20px;"></i> <span id="cabinetUserName">Foydalanuvchi Kabineti</span>
+                    </div>
+                    <div class="cabinet-menu-item active" onclick="switchUserTab('cartTab', this)"><i class="fa-solid fa-cart-shopping"></i> Savatcha (Buyurtmalarim)</div>
+                    <div class="cabinet-menu-item" onclick="switchUserTab('productsListTab', this)"><i class="fa-solid fa-boxes-stacked"></i> Mahsulotlar</div>
+                    <div class="cabinet-menu-item" onclick="switchUserTab('orderTab', this)"><i class="fa-solid fa-bag-shopping"></i> Buyurtma Berish</div>
+                    <div class="cabinet-menu-item" onclick="switchUserTab('commentTab', this)"><i class="fa-solid fa-comment-dots"></i> Izoh Qoldirish</div>
+                    <div style="margin-top: auto;">
+                        <button class="btn-outline" style="width: 100%; color: var(--accent); border-color: var(--accent);" onclick="logoutUser()">Chiqish</button>
+                    </div>
+                </div>
+                <div class="cabinet-main">
+                    <div id="cartTab" class="user-tab-content">
+                        <div class="panel-card">
+                            <h3 class="section-title" style="text-align: left; margin-bottom: 20px;">Mening Savatcham va Buyurtmalarim</h3>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Mahsulot</th>
+                                        <th>Miqdor</th>
+                                        <th>Manzil</th>
+                                        <th>Holati</th>
+                                        <th>Amal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userCartTableBody">
+                                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Savatcha bo'sh</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="productsListTab" class="user-tab-content" style="display: none;">
+                        <div class="panel-card">
+                            <h3 class="section-title" style="text-align: left; margin-bottom: 20px;">Barcha Mahsulotlar</h3>
+                            <div class="grid" id="cabinetProductsGrid" style="margin-bottom: 0;"></div>
+                        </div>
+                    </div>
+
+                    <div id="orderTab" class="user-tab-content" style="display: none;">
+                        <div class="panel-card" style="max-width: 600px;">
+                            <h3 class="section-title" style="text-align: left; margin-bottom: 20px;">Mahsulot Buyurtma Berish</h3>
+                            <div class="input-group">
+                                <label>Mahsulotni tanlang</label>
+                                <select id="orderProductSelect"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Miqdori (qadoq soni)</label>
+                                <input type="number" id="orderQty" value="1" min="1">
+                            </div>
+                            <div class="input-group">
+                                <label>Yetkazib berish manzili</label>
+                                <input type="text" id="orderAddress" placeholder="Shaharcha, ko'cha, uy raqami">
+                            </div>
+                            <button class="btn-primary" style="margin-top: 10px;" onclick="submitOrder()">Buyurtmani Tasdiqlash</button>
+                        </div>
+                    </div>
+
+                    <div id="commentTab" class="user-tab-content" style="display: none;">
+                        <div class="panel-card" style="max-width: 600px;">
+                            <h3 class="section-title" style="text-align: left; margin-bottom: 20px;">Mahsulot Haqida Izoh Yozish</h3>
+                            <div class="input-group">
+                                <label>Qaysi mahsulot bo'yicha?</label>
+                                <select id="commentProductSelect"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Sizning fikringiz</label>
+                                <textarea id="commentText" rows="4" placeholder="Mahsulot sifati, yonishi haqida yozing..."></textarea>
+                            </div>
+                            <button class="btn-primary" style="margin-top: 10px;" onclick="submitComment()">Izohni Jo'natish</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const fmt = n => Number(n || 0).toLocaleString('en-US');
+
+        // ---------- Server bilan ishlash ----------
+        async function api(path, { method = 'GET', body } = {}) {
+            const init = { method, credentials: 'same-origin', headers: {} };
+            if (body !== undefined) {
+                init.headers['Content-Type'] = 'application/json';
+                init.body = JSON.stringify(body);
+            }
+            let res;
+            try {
+                res = await fetch('/api' + path, init);
+            } catch {
+                throw new Error("Server bilan aloqa yo'q. Internetni tekshiring.");
+            }
+            let data = null;
+            try { data = await res.json(); } catch { /* bo'sh javob */ }
+            if (!res.ok) {
+                const err = new Error((data && data.message) || 'Xatolik yuz berdi. Qayta urinib ko\'ring.');
+                err.status = res.status;
+                throw err;
+            }
+            return data;
+        }
+
+        // Ikki marta bosishdan himoya + xatolarni toast'da ko'rsatish
+        let busy = false;
+        async function guard(fn) {
+            if (busy) return;
+            busy = true;
+            try { await fn(); }
+            catch (e) {
+                showToast(e.message, 'error');
+                // Sessiya muddati tugagan bo'lsa (kirgan holatda 401) - qayta kirishga yo'naltiramiz
+                if (e.status === 401 && currentUser) {
+                    currentUser = null;
+                    switchView('authView');
+                }
+            }
+            finally { busy = false; }
+        }
+
+        // ---------- Toast ----------
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${esc(message)}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ---------- Yomg'ir effekti ----------
+        const weatherContainer = document.getElementById('weatherContainer');
+        for (let i = 0; i < 15; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('drop');
+            drop.style.left = `${Math.random() * 100}vw`;
+            drop.style.top = `${Math.random() * -100}px`;
+            drop.style.animationDuration = `${0.8 + Math.random() * 0.5}s`;
+            drop.style.animationDelay = `${Math.random() * 2}s`;
+            weatherContainer.appendChild(drop);
+        }
+
+        // ---------- Holat (hammasi serverdan keladi) ----------
+        let products = [];
+        let comments = [];
+        let myOrders = [];
+        let activeAd = null;
+        let stats = { users: 0, orders: 0 };
+        let currentUser = null; // { name, phone } yoki null
+
+        async function loadPublicData() {
+            const [p, c, ad, s] = await Promise.allSettled([
+                api('/products'), api('/comments'), api('/ad'), api('/stats')
+            ]);
+            if (p.status === 'fulfilled') products = p.value;
+            if (c.status === 'fulfilled') comments = c.value;
+            if (ad.status === 'fulfilled') activeAd = ad.value.active ? ad.value : null;
+            if (s.status === 'fulfilled') stats = s.value;
+            if (p.status === 'rejected') showToast("Mahsulotlarni yuklab bo'lmadi: " + p.reason.message, 'error');
+        }
+
+        async function loadMyOrders() {
+            if (!currentUser) { myOrders = []; return; }
+            try { myOrders = await api('/orders'); }
+            catch (e) {
+                if (e.status === 401) { currentUser = null; }
+                myOrders = [];
+            }
+        }
+
+        // ---------- Ko'rinishlar ----------
+        async function switchView(viewId) {
+            if (viewId === 'userCabinetView' && !currentUser) viewId = 'authView';
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            renderHeaderActions();
+
+            if (viewId === 'websiteView') {
+                await loadPublicData();
+                renderWebProducts();
+                renderPublicComments();
+                renderBanner();
+                updateDashboardStats();
+            } else if (viewId === 'userCabinetView') {
+                await Promise.all([loadPublicData(), loadMyOrders()]);
+                if (!currentUser) return switchView('authView');
+                populateUserSelects();
+                renderUserCart();
+                renderCabinetProducts();
+                renderCabinetHeader();
+            }
+        }
+
+        function renderHeaderActions() {
+            const headerActions = document.getElementById('headerActions');
+            let html = `<button onclick="toggleTheme()" class="theme-toggle-btn" aria-label="Mavzuni almashtirish"><i class="fa-solid fa-moon"></i></button>`;
+
+            if (currentUser) {
+                html += `<button class="btn-primary" onclick="switchView('userCabinetView')"><i class="fa-solid fa-user"></i> Kabinet</button>`;
+                html += `<button class="btn-outline" onclick="logoutUser()">Chiqish</button>`;
+            } else {
+                html += `<button class="btn-outline" onclick="switchView('authView'); switchAuthMode('login');">Kirish</button>`;
+                html += `<button class="btn-primary" onclick="switchView('authView'); switchAuthMode('register');">Ro'yxatdan o'tish</button>`;
+            }
+            headerActions.innerHTML = html;
+        }
+
+        function renderCabinetHeader() {
+            const el = document.getElementById('cabinetUserName');
+            if (el && currentUser) el.textContent = currentUser.name;
+        }
+
+        async function scrollToSection(id) {
+            await switchView('websiteView');
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 50);
+        }
+
+        // ---------- Kirish / Ro'yxatdan o'tish ----------
+        function switchAuthMode(mode) {
+            const isLogin = mode === 'login';
+            document.getElementById('loginTabBtn').classList.toggle('active', isLogin);
+            document.getElementById('regTabBtn').classList.toggle('active', !isLogin);
+            document.getElementById('loginFormContainer').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('registerFormContainer').style.display = isLogin ? 'none' : 'block';
+        }
+
+        function handleLogin() {
+            return guard(async () => {
+                const phone = document.getElementById('loginPhone').value.trim();
+                const password = document.getElementById('loginPass').value;
+                if (!phone || !password) { showToast("Telefon va parolni kiriting!", "error"); return; }
+
+                const user = await api('/auth/login', { method: 'POST', body: { phone, password } });
+                currentUser = { name: user.name, phone: user.phone };
+                document.getElementById('loginPass').value = '';
+                showToast("Muvaffaqiyatli kirdingiz!");
+                await switchView('userCabinetView');
+            });
+        }
+
+        function handleRegister() {
+            return guard(async () => {
+                const name = document.getElementById('regName').value.trim();
+                const phone = document.getElementById('regPhone').value.trim();
+                const password = document.getElementById('regPass').value;
+
+                if (!name || !phone || !password) { showToast("Barcha maydonlarni to'ldiring!", "error"); return; }
+                if (password.length < 6) { showToast("Parol kamida 6 belgidan iborat bo'lsin!", "error"); return; }
+
+                const user = await api('/auth/register', { method: 'POST', body: { name, phone, password } });
+                currentUser = { name: user.name, phone: user.phone };
+                document.getElementById('regPass').value = '';
+                showToast("Ro'yxatdan o'tish muvaffaqiyatli yakunlandi!");
+                await switchView('userCabinetView');
+            });
+        }
+
+        async function logoutUser() {
+            try { await api('/auth/logout', { method: 'POST' }); } catch { /* baribir chiqamiz */ }
+            currentUser = null;
+            myOrders = [];
+            showToast("Tizimdan chiqildi.");
+            await switchView('websiteView');
+        }
+
+        // ---------- Bosh sahifa ----------
+        function renderBanner() {
+            const bannerArea = document.getElementById('bannerArea');
+            if (!activeAd) { bannerArea.innerHTML = ''; return; }
+            const img = activeAd.imageUrl
+                ? `<img src="${esc(activeAd.imageUrl)}" alt="" style="max-width:100%; max-height:220px; border-radius:12px; margin-top:12px; object-fit:cover;" referrerpolicy="no-referrer">`
+                : '';
+            bannerArea.innerHTML = `
+                <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
+                    <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
+                    <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
+                    ${img}
+                </div>`;
+        }
+
+        function productCardHtml(p) {
+            return `
+                <div class="card">
+                    <div>
+                        <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
+                        <p>${esc(p.description)}</p>
+                        ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
+                        <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
+                    </div>
+                </div>`;
+        }
+
+        function renderWebProducts(list = products) {
+            const grid = document.getElementById('webProductsGrid');
+            if (!grid) return;
+            grid.innerHTML = list.length ? list.map(productCardHtml).join('') : `<p>Mahsulotlar topilmadi.</p>`;
+        }
+
+        function filterWebProducts() {
+            const q = document.getElementById('webSearchInput').value.toLowerCase();
+            renderWebProducts(products.filter(p =>
+                p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)));
+        }
+
+        function goToOrderPage(prodId) {
+            if (!currentUser) {
+                showToast("Buyurtma berish uchun avval tizimga kiring!", "error");
+                switchView('authView');
+                return;
+            }
+            switchView('userCabinetView').then(() => {
+                switchUserTab('orderTab', document.querySelectorAll('.cabinet-menu-item')[2]);
+                document.getElementById('orderProductSelect').value = prodId;
+            });
+        }
+
+        function updateCalculator() {
+            const val = Number(document.getElementById('calcRange').value);
+            document.getElementById('calcWeightVal').innerText = val;
+            const trees = Math.max(1, Math.floor(val / 50));
+            const savings = val * 700;
+            document.getElementById('calcResultText').innerHTML = `
+                Tabiat uchun foyda: ~ ${trees} ta katta daraxt<br>
+                <b>Taxminiy tejamkorlik: ${fmt(savings)} so'm</b>`;
+        }
+
+        function toggleFaq(el) { el.classList.toggle('active'); }
+
+        function renderPublicComments() {
+            const container = document.getElementById('publicCommentsList');
+            if (!container) return;
+            if (comments.length === 0) {
+                container.innerHTML = `<p style="font-size: 13.5px; color: var(--text-muted);">Hozircha izohlar mavjud emas.</p>`;
+                return;
+            }
+            container.innerHTML = comments.map(c => `
+                <div class="comment-box">
+                    <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
+                    <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
+                </div>`).join('');
+        }
+
+        function updateDashboardStats() {
+            const u = document.getElementById('statUsersCount');
+            const o = document.getElementById('statOrdersCount');
+            if (u) u.innerText = stats.users;
+            if (o) o.innerText = stats.orders;
+        }
+
+        // ---------- Foydalanuvchi kabineti ----------
+        function switchUserTab(tabId, btn) {
+            document.querySelectorAll('.user-tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelectorAll('.cabinet-menu-item').forEach(el => el.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            if (tabId === 'cartTab') loadMyOrders().then(renderUserCart);
+            else if (tabId === 'productsListTab') renderCabinetProducts();
+        }
+
+        function populateUserSelects() {
+            const opSelect = document.getElementById('orderProductSelect');
+            const comSelect = document.getElementById('commentProductSelect');
+            const prevOrder = opSelect.value;
+            opSelect.innerHTML = products.map(p => `<option value="${Number(p.id)}">${esc(p.name)} - ${fmt(p.price)} so'm</option>`).join('');
+            comSelect.innerHTML = products.map(p => `<option value="${Number(p.id)}">${esc(p.name)}</option>`).join('');
+            if (prevOrder) opSelect.value = prevOrder;
+        }
+
+        function renderCabinetProducts() {
+            const grid = document.getElementById('cabinetProductsGrid');
+            if (!grid) return;
+            grid.innerHTML = products.length
+                ? products.map(productCardHtml).join('')
+                : `<p style="font-size: 13.5px;">Hozircha mahsulotlar mavjud emas.</p>`;
+        }
+
+        function statusColor(status) {
+            if (status === 'Bajarildi') return 'var(--primary)';
+            if (status === 'Bekor qilindi') return '#ef4444';
+            return 'var(--accent)';
+        }
+
+        function renderUserCart() {
+            const tbody = document.getElementById('userCartTableBody');
+            if (!tbody) return;
+            if (myOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Savatcha bo'sh (Buyurtmalar mavjud emas)</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = myOrders.map((o, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${esc(o.productName)}</td>
+                    <td>${Number(o.quantity)} ta</td>
+                    <td>${esc(o.address)}</td>
+                    <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
+                    <td>${o.status === 'Kutilmoqda'
+                        ? `<button onclick="cancelUserOrder(${Number(o.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight: 500;"><i class="fa-solid fa-trash"></i> Bekor qilish</button>`
+                        : '—'}</td>
+                </tr>`).join('');
+        }
+
+        function submitOrder() {
+            return guard(async () => {
+                const productId = parseInt(document.getElementById('orderProductSelect').value);
+                const quantity = parseInt(document.getElementById('orderQty').value);
+                const address = document.getElementById('orderAddress').value.trim();
+
+                if (!productId) { showToast("Mahsulotni tanlang!", "error"); return; }
+                if (!quantity || quantity < 1) { showToast("Miqdorni to'g'ri kiriting!", "error"); return; }
+                if (!address) { showToast("Iltimos, yetkazib berish manzilini kiriting!", "error"); return; }
+
+                const res = await api('/orders', { method: 'POST', body: { productId, quantity, address } });
+                showToast(res.message);
+                document.getElementById('orderAddress').value = '';
+                document.getElementById('orderQty').value = 1;
+                await loadMyOrders();
+                switchUserTab('cartTab', document.querySelectorAll('.cabinet-menu-item')[0]);
+                renderUserCart();
+            });
+        }
+
+        function cancelUserOrder(id) {
+            return guard(async () => {
+                const res = await api('/orders/' + id, { method: 'DELETE' });
+                showToast(res.message);
+                await loadMyOrders();
+                renderUserCart();
+            });
+        }
+
+        function submitComment() {
+            return guard(async () => {
+                const productId = parseInt(document.getElementById('commentProductSelect').value);
+                const text = document.getElementById('commentText').value.trim();
+                if (!text) { showToast("Izoh matnini kiriting!", "error"); return; }
+
+                const res = await api('/comments', { method: 'POST', body: { productId, text } });
+                showToast(res.message);
+                document.getElementById('commentText').value = '';
+            });
+        }
+
+        // ---------- Mavzu ----------
+        function toggleTheme() {
+            const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', next);
+            try { localStorage.setItem('ecoTheme', next); } catch { /* ruxsat yo'q */ }
+        }
+
+        // ---------- Ishga tushirish ----------
+        window.addEventListener('load', async () => {
+            try {
+                const saved = localStorage.getItem('ecoTheme');
+                if (saved === 'light' || saved === 'dark') document.body.setAttribute('data-theme', saved);
+            } catch { /* ruxsat yo'q */ }
+
+            try {
+                const me = await api('/auth/me');
+                currentUser = me.authenticated ? { name: me.name, phone: me.phone } : null;
+            } catch { currentUser = null; }
+
+            await switchView(currentUser ? 'userCabinetView' : 'websiteView');
+        });
+
+        // Enter bosilganda formani yuborish
+        document.addEventListener('keydown', e => {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('a[role=button]')) { e.preventDefault(); e.target.click(); return; }
+            if (e.key !== 'Enter') return;
+            if (e.target.id === 'loginPhone' || e.target.id === 'loginPass') handleLogin();
+            else if (['regName', 'regPhone', 'regPass'].includes(e.target.id)) handleRegister();
+        });
+    </script>
+</body>
+</html>
