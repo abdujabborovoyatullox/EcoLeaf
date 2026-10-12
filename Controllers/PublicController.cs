@@ -63,6 +63,46 @@ public class PublicController : ControllerBase
         return Ok(new { active = true, title = ad.Title, description = ad.Description, imageUrl = ad.ImageUrl });
     }
 
+    // "Ma'lumotlar" bo'limi: hamma ko'radi (rasm baytlari ro'yxatda yuborilmaydi, alohida URL orqali olinadi)
+    [HttpGet("info-posts")]
+    public async Task<IActionResult> GetInfoPosts()
+    {
+        var posts = await _db.InfoPosts
+            .AsNoTracking()
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(100)
+            .Select(p => new
+            {
+                p.Id,
+                p.Kind,
+                p.Title,
+                p.Body,
+                HasImage = p.ImageData != null,
+                p.CreatedAt
+            })
+            .ToListAsync();
+
+        Response.Headers.CacheControl = "no-cache";
+        return Ok(posts);
+    }
+
+    [HttpGet("info-posts/{id:int}/image")]
+    public async Task<IActionResult> GetInfoPostImage(int id)
+    {
+        var img = await _db.InfoPosts
+            .AsNoTracking()
+            .Where(p => p.Id == id && p.ImageData != null)
+            .Select(p => new { p.ImageData, p.ImageContentType })
+            .FirstOrDefaultAsync();
+
+        if (img?.ImageData == null) return NotFound();
+
+        // Rasm hech qachon o'zgarmaydi (yangi yuklansa yangi Id bo'ladi), shuning uchun uzoq keshlanadi
+        Response.Headers.CacheControl = "public, max-age=2592000, immutable";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(img.ImageData, img.ImageContentType ?? "application/octet-stream");
+    }
+
     [HttpGet("comments")]
     public async Task<IActionResult> GetComments()
     {

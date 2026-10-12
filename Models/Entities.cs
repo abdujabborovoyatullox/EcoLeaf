@@ -60,6 +60,25 @@ public class Comment
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
+/// <summary>"Ma'lumotlar" bo'limidagi rasm / reklama yozuvi. Rasm bazada saqlanadi (Render diski vaqtinchalik).</summary>
+public class InfoPost
+{
+    public int Id { get; set; }
+    /// <summary>"info" (oddiy ma'lumot) yoki "ad" (reklama)</summary>
+    public string Kind { get; set; } = InfoPostKind.Info;
+    public string Title { get; set; } = string.Empty;
+    public string Body { get; set; } = string.Empty;
+    public byte[]? ImageData { get; set; }
+    public string? ImageContentType { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public static class InfoPostKind
+{
+    public const string Info = "info";
+    public const string Ad = "ad";
+}
+
 public class SiteSetting
 {
     public string Key { get; set; } = string.Empty;

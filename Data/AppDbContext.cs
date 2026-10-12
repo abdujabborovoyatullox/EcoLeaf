@@ -16,6 +16,7 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<SiteSetting> Settings => Set<SiteSetting>();
+    public DbSet<InfoPost> InfoPosts => Set<InfoPost>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -65,6 +66,16 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
             e.Property(x => x.UserName).HasMaxLength(80);
             e.Property(x => x.ProductName).HasMaxLength(120);
             e.Property(x => x.Text).HasMaxLength(600);
+            e.HasIndex(x => x.CreatedAt);
+        });
+
+        b.Entity<InfoPost>(e =>
+        {
+            e.ToTable("info_posts");
+            e.Property(x => x.Kind).HasMaxLength(10).IsRequired();
+            e.Property(x => x.Title).HasMaxLength(120).IsRequired();
+            e.Property(x => x.Body).HasMaxLength(3000);
+            e.Property(x => x.ImageContentType).HasMaxLength(50);
             e.HasIndex(x => x.CreatedAt);
         });
 

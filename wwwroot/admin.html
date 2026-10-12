@@ -975,15 +975,43 @@
                 }
 
         /* ---- admin.html uchun qo'shimchalar ---- */
-        .view-section { height: 100vh; }
-        .tab-h { margin-bottom: 16px; color: var(--primary); font-size: 15px; font-weight: 700; }
-        .table-wrap { overflow-x: auto; }
-        .admin-table th, .admin-table td { vertical-align: top; }
-        .stats-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+        .view-section {
+            height: 100vh;
+        }
+
+        .tab-h {
+            margin-bottom: 16px;
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .admin-table th, .admin-table td {
+            vertical-align: top;
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+        }
+
         @media (max-width: 900px) {
-            .admin-sidebar { display: none; }
-            .admin-content-body { padding: 16px; }
-            .admin-topbar { padding: 14px 16px; }
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-content-body {
+                padding: 16px;
+            }
+
+            .admin-topbar {
+                padding: 14px 16px;
+            }
         }
     </style>
 </head>
@@ -1178,6 +1206,44 @@
                             </div>
                         </div>
 
+                        <!-- Ma'lumot / rasm / reklama -->
+                        <div id="infoTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 640px; margin-bottom: 24px;">
+                                <h4 class="tab-h">Saytning "Ma'lumotlar" bo'limiga joylash</h4>
+                                <div class="input-group">
+                                    <label for="ipKind">Turi</label>
+                                    <select id="ipKind">
+                                        <option value="info">Ma'lumot / rasm</option>
+                                        <option value="ad">Reklama</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="ipTitle">Sarlavha</label>
+                                    <input type="text" id="ipTitle" maxlength="120" placeholder="Masalan: Yangi partiya briketlar keldi">
+                                </div>
+                                <div class="input-group">
+                                    <label for="ipImage">Rasm (JPG, PNG, WEBP, GIF)</label>
+                                    <input type="file" id="ipImage" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewInfoImage()">
+                                    <img id="ipPreview" alt="" style="display:none; max-width:100%; max-height:220px; margin-top:10px; border-radius:10px; object-fit:contain;">
+                                </div>
+                                <div class="input-group">
+                                    <label for="ipBody">Rasm ostidagi ma'lumot</label>
+                                    <textarea id="ipBody" rows="5" maxlength="3000" placeholder="Rasm haqida ma'lumot yozing..."></textarea>
+                                </div>
+                                <button class="btn-primary" id="ipSaveBtn" style="margin-top: 10px;" onclick="saveInfoPost()">Saytga joylash</button>
+                            </div>
+
+                            <div class="panel-card">
+                                <h4 class="tab-h">Joylangan yozuvlar</h4>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Rasm</th><th>Turi</th><th>Sarlavha / matn</th><th>Sana</th><th>Amal</th></tr></thead>
+                                        <tbody id="infoPostsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Hisobotlar -->
                         <div id="reportsTab" class="admin-tab-content" style="display: none;">
                             <div class="panel-card">
@@ -1308,6 +1374,7 @@
             { id: 'deletedTab', icon: 'fa-trash-can', label: "O'chirilganlar", title: "O'chirilganlar", group: 'main' },
             { id: 'commentsTab', icon: 'fa-comments', label: 'Izohlar', title: 'Izohlar', group: 'main' },
             { id: 'adsTab', icon: 'fa-bullhorn', label: 'Reklama joylash', title: 'Reklama joylash', group: 'main' },
+            { id: 'infoTab', icon: 'fa-images', label: "Ma'lumot / rasm", title: "Ma'lumotlar bo'limiga rasm va reklama", group: 'main' },
             { id: 'reportsTab', icon: 'fa-chart-column', label: 'Hisobotlar', title: 'Hisobotlar', group: 'main' },
             { id: 'settingsTab', icon: 'fa-gear', label: 'Nastroyka', title: 'Tizim sozlamalari', group: 'settings' },
             { id: 'passwordTab', icon: 'fa-lock', label: "Parolni o'zgartirish", title: "Parolni o'zgartirish", group: 'settings' }
@@ -1336,6 +1403,7 @@
             else if (tabId === 'deletedTab') loadDeleted();
             else if (tabId === 'commentsTab') loadComments();
             else if (tabId === 'adsTab') loadAd();
+            else if (tabId === 'infoTab') loadInfoPosts();
             else if (tabId === 'reportsTab') initReport();
         }
 
@@ -1389,16 +1457,16 @@
                 return;
             }
             tbody.innerHTML = list.map((p, i) => `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${esc(p.name)}</td>
-                    <td>${esc(p.packageInfo)}</td>
-                    <td>${fmt(p.price)} so'm</td>
-                    <td style="white-space:nowrap;">
-                        <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
-                        <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
-                    </td>
-                </tr>`).join('');
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${esc(p.name)}</td>
+                        <td>${esc(p.packageInfo)}</td>
+                        <td>${fmt(p.price)} so'm</td>
+                        <td style="white-space:nowrap;">
+                            <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                            <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                        </td>
+                    </tr>`).join('');
         }
 
         function startEdit(id) {
@@ -1462,12 +1530,12 @@
                 return;
             }
             tbody.innerHTML = items.map((p, i) => `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${esc(p.name)}</td>
-                    <td>${fmtDate(p.deletedAt)}</td>
-                    <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
-                </tr>`).join('');
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${esc(p.name)}</td>
+                        <td>${fmtDate(p.deletedAt)}</td>
+                        <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
+                    </tr>`).join('');
         }
 
         function restoreProduct(id) {
@@ -1488,13 +1556,13 @@
                 return;
             }
             tbody.innerHTML = data.users.map((u, i) => `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${esc(u.name)}</td>
-                    <td>${esc(fmtPhone(u.phone))}</td>
-                    <td>${fmtDate(u.createdAt)}</td>
-                    <td>${Number(u.ordersCount)} ta</td>
-                </tr>`).join('');
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${esc(u.name)}</td>
+                        <td>${esc(fmtPhone(u.phone))}</td>
+                        <td>${fmtDate(u.createdAt)}</td>
+                        <td>${Number(u.ordersCount)} ta</td>
+                    </tr>`).join('');
         }
 
         // ---------- Buyurtmalar ----------
@@ -1509,20 +1577,20 @@
                 return;
             }
             tbody.innerHTML = orders.map(o => `
-                <tr>
-                    <td>${Number(o.id)}</td>
-                    <td>${fmtDate(o.createdAt)}</td>
-                    <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
-                    <td>${esc(o.productName)}</td>
-                    <td>${Number(o.quantity)} ta</td>
-                    <td>${fmt(o.total)} so'm</td>
-                    <td>${esc(o.address)}</td>
-                    <td>
-                        <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
-                            ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-                        </select>
-                    </td>
-                </tr>`).join('');
+                    <tr>
+                        <td>${Number(o.id)}</td>
+                        <td>${fmtDate(o.createdAt)}</td>
+                        <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
+                        <td>${esc(o.productName)}</td>
+                        <td>${Number(o.quantity)} ta</td>
+                        <td>${fmt(o.total)} so'm</td>
+                        <td>${esc(o.address)}</td>
+                        <td>
+                            <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
+                                ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                            </select>
+                        </td>
+                    </tr>`).join('');
         }
 
         function changeOrderStatus(id, status) {
@@ -1541,14 +1609,14 @@
                 return;
             }
             tbody.innerHTML = list.map((c, i) => `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${esc(c.userName)}</td>
-                    <td>${esc(c.productName)}</td>
-                    <td style="max-width:360px;">${esc(c.text)}</td>
-                    <td>${fmtDate(c.createdAt)}</td>
-                    <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
-                </tr>`).join('');
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${esc(c.userName)}</td>
+                        <td>${esc(c.productName)}</td>
+                        <td style="max-width:360px;">${esc(c.text)}</td>
+                        <td>${fmtDate(c.createdAt)}</td>
+                        <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
+                    </tr>`).join('');
         }
 
         function deleteComment(id) {
@@ -1582,6 +1650,111 @@
             });
         }
 
+        // ---------- Ma'lumot / rasm / reklama ----------
+        const MAX_UPLOAD = 5 * 1024 * 1024;
+
+        function previewInfoImage() {
+            const f = document.getElementById('ipImage').files[0];
+            const img = document.getElementById('ipPreview');
+            if (!f) { img.style.display = 'none'; img.removeAttribute('src'); return; }
+            if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+            const url = URL.createObjectURL(f);
+            img.dataset.url = url;
+            img.src = url;
+            img.style.display = 'block';
+        }
+
+        // Telefon rasmlari katta bo'ladi: 5 MB dan oshmasligi uchun brauzerda kichraytiramiz
+        async function shrinkImage(file) {
+            if (file.type === 'image/gif' || file.size <= 900 * 1024) return file;
+            try {
+                const bmp = await createImageBitmap(file);
+                const scale = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(bmp.width * scale);
+                canvas.height = Math.round(bmp.height * scale);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+                return blob && blob.size < file.size ? new File([blob], 'photo.jpg', { type: 'image/jpeg' }) : file;
+            } catch { return file; }
+        }
+
+        function saveInfoPost() {
+            return guard(async () => {
+                const title = document.getElementById('ipTitle').value.trim();
+                const body = document.getElementById('ipBody').value.trim();
+                let file = document.getElementById('ipImage').files[0] || null;
+
+                if (title.length < 2) throw new Error('Sarlavhani kiriting.');
+                if (!file && !body) throw new Error('Rasm yuklang yoki matn yozing.');
+
+                const btn = document.getElementById('ipSaveBtn');
+                btn.disabled = true;
+                btn.textContent = 'Yuklanmoqda...';
+                try {
+                    if (file) file = await shrinkImage(file);
+                    if (file && file.size > MAX_UPLOAD) throw new Error('Rasm hajmi 5 MB dan oshmasligi kerak.');
+
+                    const fd = new FormData();
+                    fd.append('kind', document.getElementById('ipKind').value);
+                    fd.append('title', title);
+                    fd.append('body', body);
+                    if (file) fd.append('image', file, file.name);
+
+                    let res;
+                    try { res = await fetch('/api/admin/info-posts', { method: 'POST', body: fd, credentials: 'same-origin' }); }
+                    catch { throw new Error("Server bilan aloqa yo'q. Internetni tekshiring."); }
+                    let data = null;
+                    try { data = await res.json(); } catch { }
+                    if (!res.ok) {
+                        if (res.status === 401 || res.status === 403) showLogin();
+                        const msg = res.status === 413 ? 'Rasm juda katta.' : (data && (data.message || data.title)) || 'Xatolik yuz berdi.';
+                        throw new Error(msg);
+                    }
+
+                    showToast(data.message);
+                    document.getElementById('ipTitle').value = '';
+                    document.getElementById('ipBody').value = '';
+                    document.getElementById('ipImage').value = '';
+                    previewInfoImage();
+                    await loadInfoPosts();
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Saytga joylash';
+                }
+            });
+        }
+
+        async function loadInfoPosts() {
+            const list = await api('/info-posts');
+            const tbody = document.getElementById('infoPostsTableBody');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Hali hech narsa joylanmagan</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
+                        <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
+                        <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
+                        <td>${fmtDate(p.createdAt)}</td>
+                        <td><button onclick="deleteInfoPost(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
+                    </tr>`).join('');
+        }
+
+        function deleteInfoPost(id) {
+            if (!confirm("Bu yozuvni saytdan o'chirishni tasdiqlaysizmi?")) return;
+            return guard(async () => {
+                const res = await api('/info-posts/' + id, { method: 'DELETE' });
+                showToast(res.message);
+                await loadInfoPosts();
+            });
+        }
+
         // ---------- Hisobotlar ----------
         function initReport() {
             if (document.getElementById('repYear').value) return;
@@ -1610,25 +1783,24 @@
                 const r = await api('/reports' + qs);
                 const card = (icon, value, label) => `<div class="stat-card"><i class="fa-solid ${icon}"></i><h4>${esc(value)}</h4><p>${esc(label)}</p></div>`;
                 const top = r.topProducts.length
-                    ? `<table class="admin-table"><thead><tr><th>Mahsulot</th><th>Sotilgan</th><th>Tushum</th></tr></thead><tbody>${
-                        r.topProducts.map(t => `<tr><td>${esc(t.name)}</td><td>${Number(t.quantity)} ta</td><td>${fmt(t.revenue)} so'm</td></tr>`).join('')
-                      }</tbody></table>`
+                    ? `<table class="admin-table"><thead><tr><th>Mahsulot</th><th>Sotilgan</th><th>Tushum</th></tr></thead><tbody>${r.topProducts.map(t => `<tr><td>${esc(t.name)}</td><td>${Number(t.quantity)} ta</td><td>${fmt(t.revenue)} so'm</td></tr>`).join('')
+                    }</tbody></table>`
                     : `<p style="color:var(--text-muted); font-size:13.5px;">Bu davrda sotuvlar bo'lmagan.</p>`;
 
                 document.getElementById('reportResult').innerHTML = `
-                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
-                    <div class="stats-dashboard" style="margin-bottom:20px;">
-                        ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
-                        ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
-                        ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
-                        ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
-                        ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
-                        ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
-                        ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
-                        ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
-                    </div>
-                    <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
-                    <div class="table-wrap">${top}</div>`;
+                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
+                        <div class="stats-dashboard" style="margin-bottom:20px;">
+                            ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
+                            ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
+                            ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
+                            ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
+                            ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
+                            ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
+                            ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
+                            ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
+                        </div>
+                        <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
+                        <div class="table-wrap">${top}</div>`;
             });
         }
 

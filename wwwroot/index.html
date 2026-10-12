@@ -1879,6 +1879,62 @@
                 line-height: 1.6;
             }
 
+        /* Admin yuklagan e'lon / rasm kartalari */
+        .media-frame.post-img {
+            cursor: zoom-in;
+        }
+
+        .post-text-only {
+            padding-top: 22px;
+        }
+
+        .post-date {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: .8;
+        }
+
+        .post-body {
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .media-badge.static {
+            position: static;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .media-badge.ad-badge {
+            background: rgba(249, 115, 22, 0.92);
+            border-color: transparent;
+        }
+
+            .media-badge.ad-badge i {
+                color: #fff;
+            }
+
+        #imgLightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0,0,0,.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            cursor: zoom-out;
+        }
+
+            #imgLightbox img {
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 12px;
+                object-fit: contain;
+            }
+
         /* Sayt haqida - qadamlar */
         .steps-grid {
             display: grid;
@@ -2569,12 +2625,14 @@
         let comments = [];
         let myOrders = [];
         let activeAd = null;
+        let infoPosts = [];
         let currentUser = null; // { name, phone } yoki null
 
         async function loadPublicData() {
-            const [p, c, ad] = await Promise.allSettled([
-                api('/products'), api('/comments'), api('/ad')
+            const [p, c, ad, ip] = await Promise.allSettled([
+                api('/products'), api('/comments'), api('/ad'), api('/info-posts')
             ]);
+            if (ip.status === 'fulfilled') infoPosts = ip.value;
             if (p.status === 'fulfilled') products = p.value;
             if (c.status === 'fulfilled') comments = c.value;
             if (ad.status === 'fulfilled') activeAd = ad.value.active ? ad.value : null;
@@ -2646,9 +2704,60 @@
             { type: 'image', src: '', title: 'Xazonlarni yig\'ish', caption: 'Chiqindi xazonlar - yangi energiya manbai.' }
         ];
 
+        function renderInfoPosts(el) {
+            const dateOf = iso => iso ? new Date(iso).toLocaleDateString('ru-RU', { timeZone: 'Asia/Tashkent', day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+            el.innerHTML = infoPosts.map(p => {
+                const isAd = p.kind === 'ad';
+                const badgeHtml = (extra = '') => isAd
+                    ? `<span class="media-badge ad-badge ${extra}"><i class="fa-solid fa-bullhorn"></i>Reklama</span>`
+                    : `<span class="media-badge ${extra}"><i class="fa-solid fa-image"></i>Ma'lumot</span>`;
+                const imgUrl = `/api/info-posts/${Number(p.id)}/image`;
+                const frame = p.hasImage
+                    ? `<div class="media-frame post-img" onclick="openLightbox('${imgUrl}')">${badgeHtml()}<img src="${imgUrl}" alt="${esc(p.title)}" loading="lazy"></div>`
+                    : '';
+                const body = p.body ? `<p class="post-body">${esc(p.body)}</p>` : '';
+                return `<div class="media-card">
+                            ${frame}
+                            <div class="media-body ${p.hasImage ? '' : 'post-text-only'}">
+                                ${p.hasImage ? '' : badgeHtml('static')}
+                                <h4>${esc(p.title)}</h4>${body}
+                                <span class="post-date">${esc(dateOf(p.createdAt))}</span>
+                            </div>
+                        </div>`;
+            }).join('');
+        }
+
+        function openLightbox(url) {
+            closeLightbox();
+            const box = document.createElement('div');
+            box.id = 'imgLightbox';
+            box.onclick = closeLightbox;
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            box.appendChild(img);
+            document.body.appendChild(box);
+        }
+        function closeLightbox() { const b = document.getElementById('imgLightbox'); if (b) b.remove(); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+        // Admin yangi narsa joylasa, sahifani yangilamasdan ham ko'rinadi (har 15 soniyada tekshiriladi)
+        setInterval(async () => {
+            if (document.hidden) return;
+            const page = document.querySelector('.web-page.active');
+            const view = document.getElementById('websiteView');
+            if (!page || page.dataset.page !== 'info' || !view || !view.classList.contains('active')) return;
+            try {
+                const list = await api('/info-posts');
+                const sig = l => l.map(p => p.id + ':' + p.title + ':' + p.body.length).join('|');
+                if (sig(list) !== sig(infoPosts)) { infoPosts = list; renderMediaGallery(); }
+            } catch { /* keyingi safar */ }
+        }, 15000);
+
         function renderMediaGallery() {
             const el = document.getElementById('mediaGallery');
             if (!el) return;
+            if (infoPosts.length > 0) { renderInfoPosts(el); return; }
             const labels = { video: ['fa-circle-play', 'Video'], youtube: ['fa-circle-play', 'Video'], image: ['fa-image', 'Rasm'] };
             el.innerHTML = MEDIA_ITEMS.map(m => {
                 const [icon, label] = labels[m.type] || labels.image;
@@ -2663,9 +2772,9 @@
                     media = `<img src="${esc(m.src)}" alt="${esc(m.title)}" loading="lazy">`;
                 }
                 return `<div class="media-card">
-                        <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
-                        <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
-                    </div>`;
+                            <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
+                            <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
+                        </div>`;
             }).join('');
         }
 
@@ -2715,31 +2824,31 @@
             if (!st || !dt) return;
             const i = currentProcessStep, d = PROCESS_STEPS[i];
             st.innerHTML = PROCESS_STEPS.map((x, n) => `
-                    <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
-                        <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
-                    </button>`).join('');
+                        <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
+                            <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
+                        </button>`).join('');
             dt.innerHTML = `
-                    <div class="pd-head">
-                        <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
-                        <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
-                    </div>
-                    <p class="pd-lead">${esc(d.lead)}</p>
-                    <div class="pd-cols">
-                        <div class="pd-box">
-                            <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
-                            <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                        <div class="pd-head">
+                            <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
+                            <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
                         </div>
-                        <div>
-                            <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
-                            <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                        <p class="pd-lead">${esc(d.lead)}</p>
+                        <div class="pd-cols">
+                            <div class="pd-box">
+                                <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
+                                <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                            </div>
+                            <div>
+                                <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
+                                <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="pd-nav">
-                        <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
-                        ${i < PROCESS_STEPS.length - 1
+                        <div class="pd-nav">
+                            <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
+                            ${i < PROCESS_STEPS.length - 1
                     ? `<button type="button" class="btn-primary" onclick="selectProcessStep(${i + 1})">Keyingisi <i class="fa-solid fa-arrow-right"></i></button>`
                     : `<button type="button" class="btn-primary" onclick="openWebPage('products')">Mahsulotlarni ko'rish <i class="fa-solid fa-arrow-right"></i></button>`}
-                    </div>`;
+                        </div>`;
         }
 
         function selectProcessStep(n) {
@@ -2861,26 +2970,26 @@
                 ? `<img src="${esc(activeAd.imageUrl)}" alt="" style="max-width:100%; max-height:220px; border-radius:12px; margin-top:12px; object-fit:cover;" referrerpolicy="no-referrer">`
                 : '';
             bannerArea.innerHTML = `
-                    <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
-                        <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
-                        <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
-                        ${img}
-                    </div>`;
+                        <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
+                            <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
+                            <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
+                            ${img}
+                        </div>`;
         }
 
         function productCardHtml(p) {
             return `
-                    <div class="card">
-                        <div>
-                            <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
-                            <p>${esc(p.description)}</p>
-                            ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
-                        </div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
-                            <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
-                        </div>
-                    </div>`;
+                        <div class="card">
+                            <div>
+                                <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
+                                <p>${esc(p.description)}</p>
+                                ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
+                                <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
+                            </div>
+                        </div>`;
         }
 
         function renderWebProducts(list = products) {
@@ -2917,10 +3026,10 @@
                 return;
             }
             container.innerHTML = comments.map(c => `
-                    <div class="comment-box">
-                        <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
-                        <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
-                    </div>`).join('');
+                        <div class="comment-box">
+                            <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
+                            <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
+                        </div>`).join('');
         }
 
         // ---------- Foydalanuvchi kabineti ----------
@@ -2964,16 +3073,16 @@
                 return;
             }
             tbody.innerHTML = myOrders.map((o, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${esc(o.productName)}</td>
-                        <td>${Number(o.quantity)} ta</td>
-                        <td>${esc(o.address)}</td>
-                        <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
-                        <td>${o.status === 'Kutilmoqda'
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${esc(o.productName)}</td>
+                            <td>${Number(o.quantity)} ta</td>
+                            <td>${esc(o.address)}</td>
+                            <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
+                            <td>${o.status === 'Kutilmoqda'
                     ? `<button onclick="cancelUserOrder(${Number(o.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight: 500;"><i class="fa-solid fa-trash"></i> Bekor qilish</button>`
                     : '—'}</td>
-                    </tr>`).join('');
+                        </tr>`).join('');
         }
 
         function submitOrder() {

@@ -74,6 +74,14 @@ public class UpdateAdRequest
     public bool IsActive { get; set; }
 }
 
+public class InfoPostForm
+{
+    public string? Kind { get; set; }
+    public string? Title { get; set; }
+    public string? Body { get; set; }
+    public IFormFile? Image { get; set; }
+}
+
 [ApiController]
 [Route("api/admin")]
 [Authorize(Roles = Roles.Admin)]
@@ -436,6 +444,92 @@ public class AdminController : ControllerBase
 
         await _settings.SaveAdAsync(new AdSettings(title, description, imageUrl, req.IsActive));
         return Ok(new { message = req.IsActive ? "Reklama saytga joylandi!" : "Reklama saqlandi (faol emas)." });
+    }
+
+    // ================= Ma'lumotlar bo'limi (rasm / reklama) =================
+
+    private const long MaxImageBytes = 5 * 1024 * 1024; // 5 MB
+
+    [HttpGet("info-posts")]
+    public async Task<IActionResult> GetInfoPosts()
+    {
+        var posts = await _db.InfoPosts
+            .AsNoTracking()
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new { p.Id, p.Kind, p.Title, p.Body, HasImage = p.ImageData != null, p.CreatedAt })
+            .ToListAsync();
+
+        return Ok(posts);
+    }
+
+    [HttpPost("info-posts")]
+    [RequestSizeLimit(MaxImageBytes + 512 * 1024)]
+    public async Task<IActionResult> CreateInfoPost([FromForm] InfoPostForm form)
+    {
+        var title = (form.Title ?? "").Trim();
+        var body = (form.Body ?? "").Trim();
+        var kind = form.Kind == InfoPostKind.Ad ? InfoPostKind.Ad : InfoPostKind.Info;
+
+        if (title.Length < 2 || title.Length > 120)
+            return BadRequest(new { message = "Sarlavha 2 dan 120 gacha belgidan iborat bo'lsin." });
+        if (body.Length > 3000)
+            return BadRequest(new { message = "Matn 3000 belgidan oshmasligi kerak." });
+
+        byte[]? data = null;
+        string? contentType = null;
+
+        if (form.Image is { Length: > 0 })
+        {
+            if (form.Image.Length > MaxImageBytes)
+                return BadRequest(new { message = "Rasm hajmi 5 MB dan oshmasligi kerak." });
+
+            using var ms = new MemoryStream();
+            await form.Image.CopyToAsync(ms);
+            data = ms.ToArray();
+
+            // Fayl turi brauzer aytgan nom bo'yicha emas, haqiqiy mazmuni (magic bytes) bo'yicha aniqlanadi
+            contentType = DetectImageType(data);
+            if (contentType == null)
+                return BadRequest(new { message = "Faqat JPG, PNG, WEBP yoki GIF rasm yuklash mumkin." });
+        }
+
+        if (data == null && body.Length == 0)
+            return BadRequest(new { message = "Rasm yuklang yoki matn yozing." });
+
+        var post = new InfoPost
+        {
+            Kind = kind,
+            Title = title,
+            Body = body,
+            ImageData = data,
+            ImageContentType = contentType
+        };
+        _db.InfoPosts.Add(post);
+        await _db.SaveChangesAsync();
+
+        return Ok(new { message = "Saytga joylandi! Foydalanuvchilar hozir ko'ra oladi.", id = post.Id });
+    }
+
+    [HttpDelete("info-posts/{id:int}")]
+    public async Task<IActionResult> DeleteInfoPost(int id)
+    {
+        var post = await _db.InfoPosts.FirstOrDefaultAsync(p => p.Id == id);
+        if (post == null) return NotFound(new { message = "Yozuv topilmadi." });
+
+        _db.InfoPosts.Remove(post);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Yozuv o'chirildi." });
+    }
+
+    private static string? DetectImageType(byte[] d)
+    {
+        if (d.Length < 12) return null;
+        if (d[0] == 0xFF && d[1] == 0xD8 && d[2] == 0xFF) return "image/jpeg";
+        if (d[0] == 0x89 && d[1] == 0x50 && d[2] == 0x4E && d[3] == 0x47) return "image/png";
+        if (d[0] == 0x47 && d[1] == 0x49 && d[2] == 0x46 && d[3] == 0x38) return "image/gif";
+        if (d[0] == 0x52 && d[1] == 0x49 && d[2] == 0x46 && d[3] == 0x46 &&
+            d[8] == 0x57 && d[9] == 0x45 && d[10] == 0x42 && d[11] == 0x50) return "image/webp";
+        return null;
     }
 
     // ================= Eksport =================
