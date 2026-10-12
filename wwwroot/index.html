@@ -2378,8 +2378,8 @@
                     <!-- Login Form -->
                     <div id="loginFormContainer">
                         <div class="input-group">
-                            <label>Telefon raqam</label>
-                            <input type="tel" id="loginPhone" placeholder="+998 90 123 45 67" autocomplete="tel" inputmode="tel">
+                            <label>Telefon raqam yoki login</label>
+                            <input type="text" id="loginPhone" placeholder="+998 90 123 45 67" autocomplete="username" autocapitalize="none" spellcheck="false">
                         </div>
                         <div class="input-group">
                             <label>Parol</label>
@@ -2801,7 +2801,24 @@
             return guard(async () => {
                 const phone = document.getElementById('loginPhone').value.trim();
                 const password = document.getElementById('loginPass').value;
-                if (!phone || !password) { showToast("Telefon va parolni kiriting!", "error"); return; }
+                if (!phone || !password) { showToast("Telefon (yoki login) va parolni kiriting!", "error"); return; }
+
+                // Telefon raqamga o'xshamasa (harf bor), bu admin logini: admin sifatida kiramiz
+                if (!/^[+\d\s()\-]+$/.test(phone)) {
+                    const res = await fetch('/api/admin/login', {
+                        method: 'POST', credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: phone, password })
+                    }).catch(() => null);
+                    if (!res) throw new Error("Server bilan aloqa yo'q. Internetni tekshiring.");
+                    let data = null;
+                    try { data = await res.json(); } catch { /* bo'sh javob */ }
+                    if (!res.ok) throw new Error((data && data.message) || 'Login yoki parol noto\'g\'ri.');
+                    document.getElementById('loginPass').value = '';
+                    showToast("Admin sifatida xush kelibsiz!");
+                    setTimeout(() => { window.location.href = '/admin.html'; }, 400);
+                    return;
+                }
 
                 const user = await api('/auth/login', { method: 'POST', body: { phone, password } });
                 currentUser = { name: user.name, phone: user.phone };
