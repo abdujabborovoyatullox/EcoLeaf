@@ -18,6 +18,7 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<SiteSetting> Settings => Set<SiteSetting>();
     public DbSet<InfoPost> InfoPosts => Set<InfoPost>();
     public DbSet<InfoPostChunk> InfoPostChunks => Set<InfoPostChunk>();
+    public DbSet<SiteDocument> SiteDocuments => Set<SiteDocument>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -87,6 +88,17 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
             e.HasKey(x => x.Id);
             e.HasIndex(x => new { x.PostId, x.Seq }).IsUnique();
             e.HasOne<InfoPost>().WithMany().HasForeignKey(x => x.PostId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<SiteDocument>(e =>
+        {
+            e.ToTable("site_documents");
+            e.Property(x => x.Title).HasMaxLength(120).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(1000);
+            e.Property(x => x.FileName).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Extension).HasMaxLength(10).IsRequired();
+            e.Property(x => x.ContentType).HasMaxLength(120).IsRequired();
+            e.HasIndex(x => x.SortOrder);
         });
 
         b.Entity<SiteSetting>(e =>

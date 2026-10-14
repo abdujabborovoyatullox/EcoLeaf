@@ -2295,6 +2295,109 @@
         .hero.hero-scene .trees {
             display: none !important;
         }
+        /* ===== Hujjatlar bo'limi ===== */
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 22px 20px 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+            .doc-card:hover {
+                transform: translateY(-4px);
+                border-color: var(--primary);
+            }
+
+        .doc-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .doc-ico {
+            flex: 0 0 auto;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            background: #64748b;
+        }
+
+            .doc-ico.pdf {
+                background: linear-gradient(135deg, #f87171, #dc2626);
+            }
+
+            .doc-ico.word {
+                background: linear-gradient(135deg, #60a5fa, #2563eb);
+            }
+
+            .doc-ico.excel {
+                background: linear-gradient(135deg, #4ade80, #16a34a);
+            }
+
+        .doc-card h4 {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .doc-card .doc-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .doc-meta {
+            margin-top: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+            .doc-actions a {
+                flex: 1;
+                text-align: center;
+                text-decoration: none;
+                padding: 10px 12px;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 13px;
+                border: 1px solid var(--primary);
+                color: var(--primary);
+                cursor: pointer;
+            }
+
+                .doc-actions a.main {
+                    color: #fff;
+                    border-color: transparent;
+                    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+                }
+
+                .doc-actions a:hover {
+                    filter: brightness(1.08);
+                }
     </style>
 </head>
 <body data-theme="dark">
@@ -2427,6 +2530,12 @@
                         <h3 class="section-title">Video va <span>Rasmlar</span></h3>
                         <p class="section-lead">Xazonlarning yoqilg'iga aylanish yo'lini o'zingiz ko'ring.</p>
                         <div class="media-grid" id="mediaGallery"></div>
+                    </div>
+
+                    <div class="info-section" id="documentsSection" hidden>
+                        <h3 class="section-title">Hujjat<span>lar</span></h3>
+                        <p class="section-lead">Kerakli hujjat va shakllarni yuklab oling.</p>
+                        <div class="doc-grid" id="documentsGrid"></div>
                     </div>
 
                     <div class="info-section">
@@ -2781,6 +2890,7 @@
                 renderPublicComments();
                 renderBanner();
                 renderMediaGallery();
+                loadDocuments();
                 renderProcess();
             } else if (viewId === 'userCabinetView') {
                 await Promise.all([loadPublicData(), loadMyOrders()]);
@@ -2841,13 +2951,13 @@
                         : '';
                 const body = p.body ? `<p class="post-body">${esc(p.body)}</p>` : '';
                 return `<div class="media-card">
-                                    ${frame}
-                                    <div class="media-body ${hasMedia ? '' : 'post-text-only'}">
-                                        ${hasMedia ? '' : badgeHtml('static')}
-                                        <h4>${esc(p.title)}</h4>${body}
-                                        <span class="post-date">${esc(dateOf(p.createdAt))}</span>
-                                    </div>
-                                </div>`;
+                                        ${frame}
+                                        <div class="media-body ${hasMedia ? '' : 'post-text-only'}">
+                                            ${hasMedia ? '' : badgeHtml('static')}
+                                            <h4>${esc(p.title)}</h4>${body}
+                                            <span class="post-date">${esc(dateOf(p.createdAt))}</span>
+                                        </div>
+                                    </div>`;
             }).join('');
         }
 
@@ -2896,11 +3006,81 @@
                     media = `<img src="${esc(m.src)}" alt="${esc(m.title)}" loading="lazy">`;
                 }
                 return `<div class="media-card">
-                                    <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
-                                    <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
-                                </div>`;
+                                        <div class="media-frame"><span class="media-badge"><i class="fa-solid ${icon}"></i>${label}</span>${media}</div>
+                                        <div class="media-body"><h4>${esc(m.title)}</h4><p>${esc(m.caption || '')}</p></div>
+                                    </div>`;
             }).join('');
         }
+
+        // ---------- Hujjatlar (PDF / Word / Excel) ----------
+        let siteDocs = [];
+
+        const DOC_KINDS = {
+            '.pdf': { cls: 'pdf', icon: 'fa-file-pdf' },
+            '.doc': { cls: 'word', icon: 'fa-file-word' },
+            '.docx': { cls: 'word', icon: 'fa-file-word' },
+            '.xls': { cls: 'excel', icon: 'fa-file-excel' },
+            '.xlsx': { cls: 'excel', icon: 'fa-file-excel' }
+        };
+
+        function fmtDocSize(b) {
+            b = Number(b) || 0;
+            if (b < 1024) return b + ' B';
+            if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+            return (b / 1048576).toFixed(1) + ' MB';
+        }
+
+        function renderDocuments() {
+            const sec = document.getElementById('documentsSection');
+            const grid = document.getElementById('documentsGrid');
+            if (!sec || !grid) return;
+            if (!siteDocs.length) { sec.hidden = true; grid.innerHTML = ''; return; }
+
+            const dateOf = iso => iso ? new Date(iso).toLocaleDateString('ru-RU', { timeZone: 'Asia/Tashkent', day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+            grid.innerHTML = siteDocs.map(d => {
+                const id = Number(d.id);
+                const k = DOC_KINDS[(d.extension || '').toLowerCase()] || { cls: '', icon: 'fa-file' };
+                const ext = String(d.extension || '').replace('.', '').toUpperCase();
+                const view = (d.extension || '').toLowerCase() === '.pdf'
+                    ? `<a href="/api/documents/${id}/file?inline=true" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Ko'rish</a>`
+                    : '';
+                return `<div class="doc-card">
+                                        <div class="doc-top">
+                                            <div class="doc-ico ${k.cls}"><i class="fa-solid ${k.icon}"></i></div>
+                                            <h4>${esc(d.title)}</h4>
+                                        </div>
+                                        ${d.description ? `<p class="doc-desc">${esc(d.description)}</p>` : ''}
+                                        <div class="doc-meta">${esc(ext)} &middot; ${fmtDocSize(d.sizeBytes)} &middot; ${esc(dateOf(d.updatedAt || d.createdAt))}</div>
+                                        <div class="doc-actions">
+                                            ${view}
+                                            <a class="main" href="/api/documents/${id}/file" download><i class="fa-solid fa-download"></i> Yuklab olish</a>
+                                        </div>
+                                    </div>`;
+            }).join('');
+            sec.hidden = false;
+        }
+
+        async function loadDocuments() {
+            try {
+                siteDocs = await api('/documents');
+            } catch {
+                return; // xatolikda eski ro'yxat qoladi
+            }
+            renderDocuments();
+        }
+
+        // Admin yangi hujjat qo'shsa, sahifani yangilamasdan ko'rinadi (15 soniyada bir tekshiriladi)
+        setInterval(async () => {
+            if (document.hidden) return;
+            const page = document.querySelector('.web-page.active');
+            const view = document.getElementById('websiteView');
+            if (!page || page.dataset.page !== 'info' || !view || !view.classList.contains('active')) return;
+            try {
+                const list = await api('/documents');
+                const sig = l => l.map(d => d.id + ':' + d.title + ':' + d.updatedAt).join('|');
+                if (sig(list) !== sig(siteDocs)) { siteDocs = list; renderDocuments(); }
+            } catch { /* keyingi safar */ }
+        }, 15000);
 
         // ---------- Qayta ishlash jarayoni ----------
         const PROCESS_STEPS = [
@@ -2948,31 +3128,31 @@
             if (!st || !dt) return;
             const i = currentProcessStep, d = PROCESS_STEPS[i];
             st.innerHTML = PROCESS_STEPS.map((x, n) => `
-                                <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
-                                    <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
-                                </button>`).join('');
+                                    <button type="button" role="tab" aria-selected="${n === i}" class="p-step ${n === i ? 'active' : ''} ${n < i ? 'done' : ''}" onclick="selectProcessStep(${n})">
+                                        <span class="p-num">0${n + 1}</span><i class="fa-solid ${x.icon}"></i><b>${esc(x.title)}</b>
+                                    </button>`).join('');
             dt.innerHTML = `
-                                <div class="pd-head">
-                                    <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
-                                    <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
-                                </div>
-                                <p class="pd-lead">${esc(d.lead)}</p>
-                                <div class="pd-cols">
-                                    <div class="pd-box">
-                                        <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
-                                        <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                                    <div class="pd-head">
+                                        <div class="pd-icon"><i class="fa-solid ${d.icon}"></i></div>
+                                        <div><div class="pd-step">${i + 1}-bosqich / ${PROCESS_STEPS.length}</div><h3>${esc(d.title)}</h3></div>
                                     </div>
-                                    <div>
-                                        <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
-                                        <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                                    <p class="pd-lead">${esc(d.lead)}</p>
+                                    <div class="pd-cols">
+                                        <div class="pd-box">
+                                            <h4><i class="fa-solid fa-list-check"></i> Bu bosqichda nima qilinadi</h4>
+                                            <ul>${d.steps.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(t)}</span></li>`).join('')}</ul>
+                                        </div>
+                                        <div>
+                                            <div class="pd-box"><h4><i class="fa-solid fa-lightbulb"></i> Nima uchun muhim?</h4><p>${esc(d.why)}</p></div>
+                                            <div class="pd-box pd-result"><h4><i class="fa-solid fa-flag-checkered"></i> Natija</h4><p>${esc(d.result)}</p></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="pd-nav">
-                                    <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
-                                    ${i < PROCESS_STEPS.length - 1
+                                    <div class="pd-nav">
+                                        <button type="button" class="btn-outline" ${i === 0 ? 'disabled' : ''} onclick="selectProcessStep(${i - 1})"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
+                                        ${i < PROCESS_STEPS.length - 1
                     ? `<button type="button" class="btn-primary" onclick="selectProcessStep(${i + 1})">Keyingisi <i class="fa-solid fa-arrow-right"></i></button>`
                     : `<button type="button" class="btn-primary" onclick="openWebPage('products')">Mahsulotlarni ko'rish <i class="fa-solid fa-arrow-right"></i></button>`}
-                                </div>`;
+                                    </div>`;
         }
 
         function selectProcessStep(n) {
@@ -3117,26 +3297,26 @@
                 ? `<img src="${esc(activeAd.imageUrl)}" alt="" style="max-width:100%; max-height:220px; border-radius:12px; margin-top:12px; object-fit:cover;" referrerpolicy="no-referrer">`
                 : '';
             bannerArea.innerHTML = `
-                                <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
-                                    <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
-                                    <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
-                                    ${img}
-                                </div>`;
+                                    <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; margin-bottom: 25px;">
+                                        <h3><i class="fa-solid fa-bullhorn"></i> ${esc(activeAd.title)}</h3>
+                                        <p style="margin-top: 8px; opacity: 0.95; font-size: 13.5px; color: #ffffff;">${esc(activeAd.description)}</p>
+                                        ${img}
+                                    </div>`;
         }
 
         function productCardHtml(p) {
             return `
-                                <div class="card">
-                                    <div>
-                                        <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
-                                        <p>${esc(p.description)}</p>
-                                        ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
-                                        <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
-                                    </div>
-                                </div>`;
+                                    <div class="card">
+                                        <div>
+                                            <h3><i class="fa-solid fa-seedling" style="font-size: 14px; color: var(--primary);"></i> ${esc(p.name)}</h3>
+                                            <p>${esc(p.description)}</p>
+                                            ${p.packageInfo ? `<p style="font-size: 12.5px; margin-bottom: 8px; color: var(--text-muted);"><b>Qadoq:</b> ${esc(p.packageInfo)}</p>` : ''}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 17px; color: var(--accent); margin-bottom: 14px;">${fmt(p.price)} so'm</div>
+                                            <button class="btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px;" onclick="goToOrderPage(${Number(p.id)})">Buyurtma berish</button>
+                                        </div>
+                                    </div>`;
         }
 
         function renderWebProducts(list = products) {
@@ -3173,10 +3353,10 @@
                 return;
             }
             container.innerHTML = comments.map(c => `
-                                <div class="comment-box">
-                                    <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
-                                    <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
-                                </div>`).join('');
+                                    <div class="comment-box">
+                                        <strong>${esc(c.userName)}</strong> <span style="font-size: 12px; color: var(--text-muted);">(${esc(c.productName)})</span>
+                                        <p style="margin-top: 6px; color: var(--text-muted);">${esc(c.text)}</p>
+                                    </div>`).join('');
         }
 
         // ---------- Foydalanuvchi kabineti ----------
@@ -3220,16 +3400,16 @@
                 return;
             }
             tbody.innerHTML = myOrders.map((o, i) => `
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${esc(o.productName)}</td>
-                                    <td>${Number(o.quantity)} ta</td>
-                                    <td>${esc(o.address)}</td>
-                                    <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
-                                    <td>${o.status === 'Kutilmoqda'
+                                    <tr>
+                                        <td>${i + 1}</td>
+                                        <td>${esc(o.productName)}</td>
+                                        <td>${Number(o.quantity)} ta</td>
+                                        <td>${esc(o.address)}</td>
+                                        <td><span style="color: ${statusColor(o.status)}; font-weight: 600;">${esc(o.status)}</span></td>
+                                        <td>${o.status === 'Kutilmoqda'
                     ? `<button onclick="cancelUserOrder(${Number(o.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight: 500;"><i class="fa-solid fa-trash"></i> Bekor qilish</button>`
                     : '—'}</td>
-                                </tr>`).join('');
+                                    </tr>`).join('');
         }
 
         function submitOrder() {

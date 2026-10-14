@@ -1249,6 +1249,50 @@
                             </div>
                         </div>
 
+                        <!-- Hujjatlar (PDF / Word / Excel) -->
+                        <div id="documentsTab" class="admin-tab-content" style="display: none;">
+                            <div class="panel-card" style="max-width: 640px; margin-bottom: 24px;">
+                                <h4 class="tab-h" id="docFormTitle">Saytning "Hujjatlar" bo'limiga fayl joylash</h4>
+                                <div id="docEditBanner" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:10px; background:rgba(16,185,129,0.12); color:var(--primary); font-size:14px;">
+                                    <i class="fa-solid fa-pen"></i> Tahrirlash rejimi: <b id="docEditName"></b> &mdash; yangi fayl tanlamasangiz, avvalgi fayl saqlanib qoladi.
+                                </div>
+                                <div class="input-group">
+                                    <label for="docTitle">Hujjat nomi</label>
+                                    <input type="text" id="docTitle" maxlength="120" placeholder="Masalan: Hamkorlik shartnomasi namunasi">
+                                </div>
+                                <div class="input-group">
+                                    <label for="docDescription">Qisqa tavsif (ixtiyoriy)</label>
+                                    <textarea id="docDescription" rows="3" maxlength="1000" placeholder="Hujjat haqida qisqacha ma'lumot..."></textarea>
+                                </div>
+                                <div class="input-group">
+                                    <label for="docFile">Fayl (PDF, Word, Excel &mdash; 20 MB gacha)</label>
+                                    <input type="file" id="docFile" accept=".pdf,.doc,.docx,.xls,.xlsx" onchange="previewDocFile()">
+                                    <div id="docFileInfo" style="display:none; margin-top:10px; color:var(--text-muted); font-size:13px;"></div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="docSort">Tartib raqami (kichigi birinchi chiqadi)</label>
+                                    <input type="number" id="docSort" value="0">
+                                </div>
+                                <div class="input-group">
+                                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                        <input type="checkbox" id="docVisible" checked style="width: 18px; height: 18px; accent-color: var(--primary);"> Saytda ko'rinsin
+                                    </label>
+                                </div>
+                                <button class="btn-primary" id="docSaveBtn" style="margin-top: 10px;" onclick="saveDocument()">Saytga joylash</button>
+                                <button class="btn-primary" id="docCancelBtn" style="margin-top: 10px; margin-left: 8px; display:none; background:transparent; border:1px solid var(--border-color, #334155); color:var(--text-muted); box-shadow:none;" onclick="cancelEditDocument()">Bekor qilish</button>
+                            </div>
+
+                            <div class="panel-card">
+                                <h4 class="tab-h">Joylangan hujjatlar</h4>
+                                <div class="table-wrap">
+                                    <table class="admin-table">
+                                        <thead><tr><th>#</th><th>Turi</th><th>Nomi / tavsif</th><th>Hajmi</th><th>Tartib</th><th>Holati</th><th>Yangilangan</th><th>Amal</th></tr></thead>
+                                        <tbody id="documentsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Hisobotlar -->
                         <div id="reportsTab" class="admin-tab-content" style="display: none;">
                             <div class="panel-card">
@@ -1380,6 +1424,7 @@
             { id: 'commentsTab', icon: 'fa-comments', label: 'Izohlar', title: 'Izohlar', group: 'main' },
             { id: 'adsTab', icon: 'fa-bullhorn', label: 'Reklama joylash', title: 'Reklama joylash', group: 'main' },
             { id: 'infoTab', icon: 'fa-images', label: "Ma'lumot / rasm", title: "Ma'lumotlar bo'limiga rasm va reklama", group: 'main' },
+            { id: 'documentsTab', icon: 'fa-file-lines', label: 'Hujjatlar', title: "Hujjatlar (PDF, Word, Excel)", group: 'main' },
             { id: 'reportsTab', icon: 'fa-chart-column', label: 'Hisobotlar', title: 'Hisobotlar', group: 'main' },
             { id: 'settingsTab', icon: 'fa-gear', label: 'Nastroyka', title: 'Tizim sozlamalari', group: 'settings' },
             { id: 'passwordTab', icon: 'fa-lock', label: "Parolni o'zgartirish", title: "Parolni o'zgartirish", group: 'settings' }
@@ -1409,6 +1454,7 @@
             else if (tabId === 'commentsTab') loadComments();
             else if (tabId === 'adsTab') loadAd();
             else if (tabId === 'infoTab') loadInfoPosts();
+            else if (tabId === 'documentsTab') loadDocuments();
             else if (tabId === 'reportsTab') initReport();
         }
 
@@ -1462,16 +1508,16 @@
                 return;
             }
             tbody.innerHTML = list.map((p, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${esc(p.name)}</td>
-                            <td>${esc(p.packageInfo)}</td>
-                            <td>${fmt(p.price)} so'm</td>
-                            <td style="white-space:nowrap;">
-                                <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
-                                <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
-                            </td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${esc(p.name)}</td>
+                                <td>${esc(p.packageInfo)}</td>
+                                <td>${fmt(p.price)} so'm</td>
+                                <td style="white-space:nowrap;">
+                                    <button onclick="startEdit(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                                    <button onclick="deleteProduct(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                                </td>
+                            </tr>`).join('');
         }
 
         function startEdit(id) {
@@ -1535,12 +1581,12 @@
                 return;
             }
             tbody.innerHTML = items.map((p, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${esc(p.name)}</td>
-                            <td>${fmtDate(p.deletedAt)}</td>
-                            <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${esc(p.name)}</td>
+                                <td>${fmtDate(p.deletedAt)}</td>
+                                <td><button onclick="restoreProduct(${Number(p.id)})" class="btn-primary" style="padding: 4px 12px; font-size:12px;">Tiklash</button></td>
+                            </tr>`).join('');
         }
 
         function restoreProduct(id) {
@@ -1561,13 +1607,13 @@
                 return;
             }
             tbody.innerHTML = data.users.map((u, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${esc(u.name)}</td>
-                            <td>${esc(fmtPhone(u.phone))}</td>
-                            <td>${fmtDate(u.createdAt)}</td>
-                            <td>${Number(u.ordersCount)} ta</td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${esc(u.name)}</td>
+                                <td>${esc(fmtPhone(u.phone))}</td>
+                                <td>${fmtDate(u.createdAt)}</td>
+                                <td>${Number(u.ordersCount)} ta</td>
+                            </tr>`).join('');
         }
 
         // ---------- Buyurtmalar ----------
@@ -1582,20 +1628,20 @@
                 return;
             }
             tbody.innerHTML = orders.map(o => `
-                        <tr>
-                            <td>${Number(o.id)}</td>
-                            <td>${fmtDate(o.createdAt)}</td>
-                            <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
-                            <td>${esc(o.productName)}</td>
-                            <td>${Number(o.quantity)} ta</td>
-                            <td>${fmt(o.total)} so'm</td>
-                            <td>${esc(o.address)}</td>
-                            <td>
-                                <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
-                                    ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-                                </select>
-                            </td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${Number(o.id)}</td>
+                                <td>${fmtDate(o.createdAt)}</td>
+                                <td>${esc(o.userName)}<br><span style="font-size:12px; color:var(--text-muted);">${esc(fmtPhone(o.phone))}</span></td>
+                                <td>${esc(o.productName)}</td>
+                                <td>${Number(o.quantity)} ta</td>
+                                <td>${fmt(o.total)} so'm</td>
+                                <td>${esc(o.address)}</td>
+                                <td>
+                                    <select onchange="changeOrderStatus(${Number(o.id)}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-solid); color:var(--text-color);">
+                                        ${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                                    </select>
+                                </td>
+                            </tr>`).join('');
         }
 
         function changeOrderStatus(id, status) {
@@ -1614,14 +1660,14 @@
                 return;
             }
             tbody.innerHTML = list.map((c, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${esc(c.userName)}</td>
-                            <td>${esc(c.productName)}</td>
-                            <td style="max-width:360px;">${esc(c.text)}</td>
-                            <td>${fmtDate(c.createdAt)}</td>
-                            <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${esc(c.userName)}</td>
+                                <td>${esc(c.productName)}</td>
+                                <td style="max-width:360px;">${esc(c.text)}</td>
+                                <td>${fmtDate(c.createdAt)}</td>
+                                <td><button onclick="deleteComment(${Number(c.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button></td>
+                            </tr>`).join('');
         }
 
         function deleteComment(id) {
@@ -1813,17 +1859,17 @@
                 return;
             }
             tbody.innerHTML = list.map((p, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${p.hasVideo ? '<i class="fa-solid fa-circle-play" style="font-size:28px;color:var(--primary);"></i>' : p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
-                            <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
-                            <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
-                            <td>${fmtDate(p.createdAt)}</td>
-                            <td style="white-space:nowrap;">
-                                <button onclick="startEditInfoPost(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
-                                <button onclick="deleteInfoPost(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
-                            </td>
-                        </tr>`).join('');
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${p.hasVideo ? '<i class="fa-solid fa-circle-play" style="font-size:28px;color:var(--primary);"></i>' : p.hasImage ? `<img src="/api/info-posts/${Number(p.id)}/image" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">` : '—'}</td>
+                                <td>${p.kind === 'ad' ? 'Reklama' : "Ma'lumot"}</td>
+                                <td style="max-width:360px;"><b>${esc(p.title)}</b><br><span style="color:var(--text-muted);">${esc((p.body || '').slice(0, 140))}${(p.body || '').length > 140 ? '…' : ''}</span></td>
+                                <td>${fmtDate(p.createdAt)}</td>
+                                <td style="white-space:nowrap;">
+                                    <button onclick="startEditInfoPost(${Number(p.id)})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                                    <button onclick="deleteInfoPost(${Number(p.id)})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i> O'chirish</button>
+                                </td>
+                            </tr>`).join('');
         }
 
         function deleteInfoPost(id) {
@@ -1833,6 +1879,177 @@
                 showToast(res.message);
                 if (editingInfoId === Number(id)) cancelEditInfoPost();
                 await loadInfoPosts();
+            });
+        }
+
+        // ---------- Hujjatlar (PDF / Word / Excel) ----------
+        let documentsCache = [];
+        let editingDocId = null;
+
+        const DOC_ICONS = {
+            '.pdf': ['fa-file-pdf', '#ef4444'],
+            '.doc': ['fa-file-word', '#3b82f6'], '.docx': ['fa-file-word', '#3b82f6'],
+            '.xls': ['fa-file-excel', '#22c55e'], '.xlsx': ['fa-file-excel', '#22c55e']
+        };
+        const MAX_DOC_UPLOAD = 20 * 1024 * 1024;
+
+        function fmtDocSize(b) {
+            b = Number(b) || 0;
+            if (b < 1024) return b + ' B';
+            if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+            return (b / 1048576).toFixed(1) + ' MB';
+        }
+
+        function previewDocFile() {
+            const f = document.getElementById('docFile').files[0];
+            const info = document.getElementById('docFileInfo');
+            if (!f) { info.style.display = 'none'; return; }
+            info.textContent = '📄 ' + f.name + ' (' + fmtDocSize(f.size) + ')';
+            info.style.display = 'block';
+            const t = document.getElementById('docTitle');
+            if (!t.value.trim()) t.value = f.name.replace(/\.[^.]+$/, '');
+        }
+
+        function resetDocumentForm() {
+            document.getElementById('docTitle').value = '';
+            document.getElementById('docDescription').value = '';
+            document.getElementById('docFile').value = '';
+            document.getElementById('docSort').value = '0';
+            document.getElementById('docVisible').checked = true;
+            document.getElementById('docFileInfo').style.display = 'none';
+        }
+
+        function startEditDocument(id) {
+            const d = documentsCache.find(x => Number(x.id) === Number(id));
+            if (!d) return;
+            editingDocId = Number(d.id);
+            resetDocumentForm();
+            document.getElementById('docTitle').value = d.title || '';
+            document.getElementById('docDescription').value = d.description || '';
+            document.getElementById('docSort').value = d.sortOrder ?? 0;
+            document.getElementById('docVisible').checked = !!d.isVisible;
+            const info = document.getElementById('docFileInfo');
+            info.textContent = '📄 Joriy fayl: ' + d.fileName + ' (' + fmtDocSize(d.sizeBytes) + ')';
+            info.style.display = 'block';
+            document.getElementById('docFormTitle').textContent = 'Hujjatni tahrirlash';
+            document.getElementById('docEditName').textContent = d.title;
+            document.getElementById('docEditBanner').style.display = 'block';
+            document.getElementById('docSaveBtn').textContent = "O'zgarishlarni saqlash";
+            document.getElementById('docCancelBtn').style.display = 'inline-flex';
+            document.getElementById('docTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelEditDocument() {
+            editingDocId = null;
+            resetDocumentForm();
+            document.getElementById('docFormTitle').textContent = 'Saytning "Hujjatlar" bo\'limiga fayl joylash';
+            document.getElementById('docEditBanner').style.display = 'none';
+            document.getElementById('docSaveBtn').textContent = 'Saytga joylash';
+            document.getElementById('docCancelBtn').style.display = 'none';
+        }
+
+        function saveDocument() {
+            return guard(async () => {
+                const title = document.getElementById('docTitle').value.trim();
+                const file = document.getElementById('docFile').files[0] || null;
+                const editId = editingDocId;
+
+                if (title.length < 2) throw new Error('Hujjat nomini kiriting.');
+                if (!editId && !file) throw new Error('Fayl tanlang (PDF, Word yoki Excel).');
+                if (file) {
+                    const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (!['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(ext)) throw new Error('Faqat PDF, Word va Excel fayllar mumkin.');
+                    if (file.size > MAX_DOC_UPLOAD) throw new Error('Fayl hajmi 20 MB dan oshmasligi kerak.');
+                }
+
+                const fd = new FormData();
+                fd.append('title', title);
+                fd.append('description', document.getElementById('docDescription').value.trim());
+                fd.append('sortOrder', document.getElementById('docSort').value || '0');
+                fd.append('isVisible', document.getElementById('docVisible').checked ? 'true' : 'false');
+                if (file) fd.append('file', file, file.name);
+
+                const btn = document.getElementById('docSaveBtn');
+                btn.disabled = true;
+                btn.textContent = 'Yuklanmoqda...';
+                try {
+                    const res = await uploadWithProgress(editId ? '/api/admin/documents/' + editId : '/api/admin/documents', fd, pct => {
+                        btn.textContent = pct < 100 ? `Yuklanmoqda... ${pct}%` : 'Serverga saqlanmoqda...';
+                    }, editId ? 'PUT' : 'POST');
+                    if (!res.ok) {
+                        if (res.status === 401 || res.status === 403) showLogin();
+                        const msg = res.status === 413
+                            ? 'Fayl juda katta: server uni qabul qilmadi.'
+                            : (res.data && (res.data.message || res.data.title)) || 'Xatolik yuz berdi (' + res.status + ').';
+                        throw new Error(msg);
+                    }
+                    showToast((res.data && res.data.message) || 'Saqlandi.');
+                    cancelEditDocument();
+                    await loadDocuments();
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = editingDocId ? "O'zgarishlarni saqlash" : 'Saytga joylash';
+                }
+            });
+        }
+
+        async function loadDocuments() {
+            let list;
+            try { list = await api('/documents'); }
+            catch (e) { showToast(e.message, 'error'); return; }
+            documentsCache = list;
+            const tbody = document.getElementById('documentsTableBody');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Hali hujjat joylanmagan</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((d, i) => {
+                const [icon, color] = DOC_ICONS[(d.extension || '').toLowerCase()] || ['fa-file', 'var(--text-muted)'];
+                const id = Number(d.id);
+                return `
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td><i class="fa-solid ${icon}" style="font-size:26px;color:${color};"></i></td>
+                                <td style="max-width:340px;"><b>${esc(d.title)}</b><br><span style="color:var(--text-muted);">${esc((d.description || '').slice(0, 120))}${(d.description || '').length > 120 ? '…' : ''}</span><br><span style="color:var(--text-muted); font-size:12px;">${esc(d.fileName)}</span></td>
+                                <td>${fmtDocSize(d.sizeBytes)}</td>
+                                <td>${Number(d.sortOrder)}</td>
+                                <td><button onclick="toggleDocumentVisible(${id})" title="Holatni almashtirish" style="background:none; border:1px solid var(--border-color, #334155); border-radius:20px; padding:3px 12px; cursor:pointer; font-size:12px; color:${d.isVisible ? 'var(--primary)' : 'var(--text-muted)'};">${d.isVisible ? "Ko'rinadi" : 'Yashirin'}</button></td>
+                                <td>${fmtDate(d.updatedAt)}</td>
+                                <td style="white-space:nowrap;">
+                                    <a href="/api/admin/documents/${id}/file" title="Yuklab olish" style="color:var(--text-muted); margin-right:12px;"><i class="fa-solid fa-download"></i></a>
+                                    <button onclick="startEditDocument(${id})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:500; margin-right:12px;"><i class="fa-solid fa-pen"></i> Tahrirlash</button>
+                                    <button onclick="deleteDocument(${id})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:500;"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>`;
+            }).join('');
+        }
+
+        function toggleDocumentVisible(id) {
+            return guard(async () => {
+                const d = documentsCache.find(x => Number(x.id) === Number(id));
+                if (!d) return;
+                const fd = new FormData();
+                fd.append('title', d.title);
+                fd.append('description', d.description || '');
+                fd.append('sortOrder', d.sortOrder);
+                fd.append('isVisible', d.isVisible ? 'false' : 'true');
+                const res = await uploadWithProgress('/api/admin/documents/' + Number(id), fd, () => { }, 'PUT');
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) showLogin();
+                    throw new Error((res.data && res.data.message) || "Holatni o'zgartirib bo'lmadi.");
+                }
+                showToast(d.isVisible ? 'Hujjat saytdan yashirildi.' : "Hujjat saytda ko'rinadi.");
+                await loadDocuments();
+            });
+        }
+
+        function deleteDocument(id) {
+            if (!confirm("Bu hujjatni butunlay o'chirishni tasdiqlaysizmi?")) return;
+            return guard(async () => {
+                const res = await api('/documents/' + id, { method: 'DELETE' });
+                showToast(res.message);
+                if (editingDocId === Number(id)) cancelEditDocument();
+                await loadDocuments();
             });
         }
 
@@ -1869,19 +2086,19 @@
                     : `<p style="color:var(--text-muted); font-size:13.5px;">Bu davrda sotuvlar bo'lmagan.</p>`;
 
                 document.getElementById('reportResult').innerHTML = `
-                            <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
-                            <div class="stats-dashboard" style="margin-bottom:20px;">
-                                ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
-                                ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
-                                ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
-                                ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
-                                ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
-                                ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
-                                ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
-                                ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
-                            </div>
-                            <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
-                            <div class="table-wrap">${top}</div>`;
+                                <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Davr: ${esc(r.fromDate)}${r.fromDate !== r.toDate ? ' — ' + esc(r.toDate) : ''}</p>
+                                <div class="stats-dashboard" style="margin-bottom:20px;">
+                                    ${card('fa-bag-shopping', r.ordersTotal, 'Jami buyurtmalar')}
+                                    ${card('fa-circle-check', r.ordersDone, 'Bajarilgan')}
+                                    ${card('fa-hourglass-half', r.ordersPending + r.ordersProcessing, 'Kutilmoqda / jarayonda')}
+                                    ${card('fa-ban', r.ordersCancelled, 'Bekor qilingan')}
+                                    ${card('fa-sack-dollar', fmt(r.revenue) + " so'm", 'Tushum (bekorsiz)')}
+                                    ${card('fa-user-plus', r.newUsers, 'Yangi foydalanuvchilar')}
+                                    ${card('fa-box', r.productsCreated, 'Yaratilgan mahsulotlar')}
+                                    ${card('fa-trash', r.productsDeleted, "O'chirilgan mahsulotlar")}
+                                </div>
+                                <h4 class="tab-h" style="margin-top:6px;">Eng ko'p sotilgan mahsulotlar</h4>
+                                <div class="table-wrap">${top}</div>`;
             });
         }
 
